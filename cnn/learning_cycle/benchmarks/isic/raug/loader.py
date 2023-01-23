@@ -90,6 +90,23 @@ class MyDataset (data.Dataset):
 
         return image, labels, meta_data, img_id
 
+    def __set_sample__(self, **kwargs):
+        if 'percentage' in kwargs:
+            p = kwargs['percentage']
+            N = len(self.__image_list)
+            rn = np.random.rand(N)
+            j = np.argsort(rn)[0:int(np.floor(p * N))]
+            self.__sample = [self.__image_list[i] for i in j]
+        elif 'image_names' in kwargs:
+            i_names = kwargs['image_names']
+            self.__sample = [data for data in self.__image_list if data['imageName'] in i_names]
+        elif 'image_indices' in kwargs:
+            image_idxs = kwargs['image_indices']
+            self.__sample = [self.__image_list[i] for i in image_idxs]
+        else:
+            print('No samples was selected. All images will be used.')
+            self.reset_sample()
+
 class MyDatasetSeg (data.Dataset):
     """CamVid Dataset. Read images, apply augmentation and preprocessing transformations.
     
@@ -183,10 +200,10 @@ def get_data_loader (imgs_path, labels, meta_data=None, transform=None, batch_si
     :return (torch.utils.data.DataLoader): a dataloader with the dataset and the chose params
     """
 
-    if imgs_path_seg:
-        dt = MyDatasetSeg(imgs_path, imgs_path_seg, classes=classes)
-    else:
-        dt = MyDataset(imgs_path, labels, meta_data, transform)
+    # if imgs_path_seg:
+    #     dt = MyDatasetSeg(imgs_path, imgs_path_seg, classes=classes)
+    # else:
+    dt = MyDataset(imgs_path, labels, meta_data, transform)
     dl = data.DataLoader (dataset=dt, batch_size=batch_size, shuffle=shuf, num_workers=num_workers,
                           pin_memory=pin_memory)
     return dl

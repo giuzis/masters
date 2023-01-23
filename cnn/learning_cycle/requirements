@@ -12,6 +12,8 @@ pandas
 pillow
 tqdm
 torchsummary
-python-telegram-bot
 sacred
 timm
+xlrd
+networkx==1.11
+scikit-image

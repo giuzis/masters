@@ -116,7 +116,7 @@ def _train_epoch (model, optimizer, loss_fn, data_loader, c_epoch, t_epoch, devi
     return {"loss": loss_avg(), "accuracy": acc_avg(), "topk_acc": topk_avg() }
 
 
-def fit_model (model, train_data_loader, val_data_loader, optimizer=None, loss_fn=None, epochs=10,
+def fit_model (model, train_data_loader, val_data_loader, class_names, optimizer=None, loss_fn=None, epochs=10,
                epochs_early_stop=None, save_folder=None, initial_model=None, best_metric="loss", device=None,
                topk=2, schedule_lr=None, config_bot=None, model_name="CNN", resume_train=False, history_plot=True,
                val_metrics=('balanced_accuracy', 'auc'), metric_early_stop=None):
@@ -272,7 +272,7 @@ def fit_model (model, train_data_loader, val_data_loader, optimizer=None, loss_f
         train_metrics = _train_epoch(model, optimizer, loss_fn, train_data_loader, epoch, epochs, device, topk)
 
         # After each epoch, we evaluate the model for the training and validation data
-        val_metrics = metrics_for_eval (model, val_data_loader, device, loss_fn, topk,
+        val_metrics = metrics_for_eval (model, val_data_loader, device, loss_fn, class_names, topk,
                                         get_all=True)
 
         # Checking the schedule if applicable
@@ -404,57 +404,3 @@ def fit_model (model, train_data_loader, val_data_loader, optimizer=None, loss_f
     print('\n')
 
     writer.close()
-
-def fit_model_seg(model, train_data_loader, val_data_loader, optimizer=None, loss_fn=None, epochs=10,
-               epochs_early_stop=None, save_folder=None, initial_model=None, best_metric="loss", device=None,
-               topk=2, schedule_lr=None, config_bot=None, model_name="CNN", resume_train=False, history_plot=True,
-               val_metrics=('balanced_accuracy', 'auc'), metric_early_stop=None):
-    loss = smp.utils.losses.DiceLoss()
-    metrics = [
-        smp.utils.metrics.IoU(threshold=0.5),
-    ]
-
-    optimizer = torch.optim.Adam([ 
-        dict(params=model.parameters(), lr=0.0001),
-    ])
-
-    # create epoch runners 
-    # it is a simple loop of iterating over dataloader`s samples
-    train_epoch = smp.utils.train.TrainEpoch(
-        model, 
-        loss=loss, 
-        metrics=metrics, 
-        optimizer=optimizer,
-        device='cuda',
-        verbose=True,
-    )
-
-    valid_epoch = smp.utils.train.ValidEpoch(
-        model, 
-        loss=loss, 
-        metrics=metrics, 
-        device='cuda',
-        verbose=True,
-    )
-
-    # train model for 40 epochs
-
-    max_score = 0
-
-    for i in range(0, epochs):
-        
-        print('\nEpoch: {}'.format(i))
-        train_logs = train_epoch.run(train_data_loader)
-        valid_logs = valid_epoch.run(val_data_loader)
-        
-        # do something (save model, change lr, etc.)
-        if max_score < valid_logs['iou_score']:
-            max_score = valid_logs['iou_score']
-            torch.save(model, './best_model.pth')
-            print('Model saved!')
-            
-        if i == 25:
-            optimizer.param_groups[0]['lr'] = 1e-5
-            print('Decrease decoder learning rate to 1e-5!')
-
-

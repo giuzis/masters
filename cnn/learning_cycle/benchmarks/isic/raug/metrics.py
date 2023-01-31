@@ -102,16 +102,16 @@ class Metrics:
         
         if self.metrics_names == "all":
             self.metrics_names = ["accuracy", "topk_accuracy", "balanced_accuracy",  "conf_matrix", "plot_conf_matrix",
-                                  "precision_recall_report", "auc_and_roc_curve", "auc"]
+                                  "precision_recall_report", "auc_and_roc_curve", "auc", "sensitivity", "specificity"]
         
         
         for mets in self.metrics_names:
             if mets == "accuracy":
                 self.metrics_values["accuracy"] = cmet.accuracy(self.label_scores, self.pred_scores)
-                
+            elif mets == "sensitivity" or mets == "specificity":
+                self.metrics_values["sensitivity"], self.metrics_values["specificity"] = cmet.sensitivity_and_specificity(self.label_scores, self.pred_scores)    
             elif mets == "balanced_accuracy":
                 self.metrics_values["balanced_accuracy"] = cmet.balanced_accuracy(self.label_scores, self.pred_scores)
-
             elif mets == "topk_accuracy":
 
                 # Checking if the class names are defined
@@ -121,7 +121,6 @@ class Metrics:
                         self.topk = self.options["topk"]
 
                 self.metrics_values["topk_accuracy"] = cmet.topk_accuracy(self.label_scores, self.pred_scores, self.topk)
-            
             elif mets == "conf_matrix":
                 
                 # Checking the options
@@ -157,18 +156,14 @@ class Metrics:
                 else:
                     cm = cmet.conf_matrix(self.label_scores, self.pred_scores, normalize)
                 
-                cmet.plot_conf_matrix(cm, self.class_names, normalize, save_path, title)
-                
-                
+                cmet.plot_conf_matrix(cm, self.class_names, normalize, save_path, title)       
             elif mets == "precision_recall_report":
 
                 self.metrics_values["precision_recall_report"] = cmet.precision_recall_report(self.label_scores,
                                                                                               self.pred_scores,
                                                                                               self.class_names)
-
             elif mets == 'auc':
-                self.metrics_values["auc"] = cmet.roc_auc(self.label_scores, self.pred_scores)
-                
+                self.metrics_values["auc"] = cmet.roc_auc(self.label_scores, self.pred_scores)   
             elif mets == "auc_and_roc_curve":
                 
                 # Checking if the class names are defined
@@ -272,6 +267,10 @@ class Metrics:
                         f.write('- Loss: {:.3f}\n'.format(self.metrics_values[met]))
                     elif met == "accuracy":
                         f.write('- Accuracy: {:.3f}\n'.format(self.metrics_values[met]))
+                    elif met == "sensitivity":
+                        f.write('- Sensitivity: {:.3f}\n'.format(self.metrics_values[met]))
+                    elif met == "specificity":
+                        f.write('- Specificity: {:.3f}\n'.format(self.metrics_values[met]))
                     elif met == "balanced_accuracy":
                         f.write('- Balanced accuracy: {:.3f}\n'.format(self.metrics_values[met]))
                     elif met == "topk_accuracy":

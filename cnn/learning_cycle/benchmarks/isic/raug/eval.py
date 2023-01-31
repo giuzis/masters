@@ -19,7 +19,7 @@ from .utils.classification_metrics import AVGMetrics
 from tqdm import tqdm
 
 
-def metrics_for_eval (model, data_loader, device, loss_fn, topk=2, get_balanced_acc=False, get_auc=False, get_all=True):
+def metrics_for_eval (model, data_loader, device, loss_fn, class_names, topk=2, get_balanced_acc=False, get_auc=False, get_all=True):
     """
         This function returns accuracy, topk accuracy and loss for the evaluation partition
 
@@ -52,15 +52,15 @@ def metrics_for_eval (model, data_loader, device, loss_fn, topk=2, get_balanced_
             opt_metrics = list()
             
             if get_all:
-                metrics = Metrics(metrics_names = 'all')
-            if not get_balanced_acc and not get_auc:
+                metrics = Metrics(metrics_names = 'all', class_names=class_names)
+            elif not get_balanced_acc and not get_auc:
                 metrics = None
             else:                
                 if get_balanced_acc:
                     opt_metrics.append('balanced_accuracy')
                 if get_auc:
                     opt_metrics.append('auc')                        
-                metrics = Metrics(opt_metrics)                
+                metrics = Metrics(opt_metrics, class_names=class_names)                
 
 
             for data in data_loader:

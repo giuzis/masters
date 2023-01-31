@@ -246,6 +246,20 @@ def balanced_accuracy (lab_real, lab_pred):
     return skmet.balanced_accuracy_score(lab_real, lab_pred)
 
 
+def sensitivity_and_specificity (lab_real, lab_pred):
+    """
+    This computes the balance accuracy for binary or multiclass classification tasks. This metric is the average recall
+    or sensitivity
+
+    :param lab_real (np.array): the data real labels
+    :param lab_pred (np.array): the predictions returned by the model
+    :return (number): the balanced accuracy
+    """
+
+    tn, fp, fn, tp = skmet.confusion_matrix(lab_real, lab_pred).ravel()
+    return [tp/(tp+fn), tn / (tn+fp)]
+
+
 def precision_recall_report (lab_real, lab_pred, class_names=None, verbose=False, output_dict=False):
     """
     Computes the precision, recall, F1 score and support for each class. Both lab_real and lab_pred can be a labels
@@ -393,6 +407,7 @@ def get_metrics_from_csv (csv, class_names=None, topk=2, conf_mat=False, conf_ma
     labels = np.array(labels)
 
     acc = accuracy(labels, preds)
+    sensitivity, specificity = sensitivity_and_specificity(labels, preds)
     topk_acc = topk_accuracy(labels, preds, topk)
     ba = balanced_accuracy(labels, preds)
     rep =  precision_recall_report(labels, preds, class_names, output_dict=True)
@@ -419,9 +434,11 @@ def get_metrics_from_csv (csv, class_names=None, topk=2, conf_mat=False, conf_ma
         print("- Metrics:")
         print("- Loss: {:.3f}".format(loss))
         print("- Accuracy: {:.3f}".format(acc))
+        print("- Sensitivity: {:.3f}".format(sensitivity))
+        print("- Specificity: {:.3f}".format(specificity))
         print("- Top {} Accuracy: {:.3f}".format(topk, topk_acc))
         print("- Balanced accuracy: {:.3f}".format(ba))
         print("- AUC macro: {:.3f}".format(auc['macro']))
 
-    return acc, topk_acc, ba, rep, auc, loss, fpr, tpr
+    return acc, topk_acc, ba, rep, auc, loss, fpr, tpr, sensitivity, specificity
 

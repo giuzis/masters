@@ -1,9 +1,4 @@
 
-import sys
-sys.path.insert(0,'../../') # including the path to deep-tasks folder
-sys.path.insert(0,'../../my_models') # including the path to my_models folder
-from constants import RAUG_PATH
-sys.path.insert(0,RAUG_PATH)
 from raug.loader import get_data_loader
 from raug.train import fit_model
 from raug.eval import test_model
@@ -28,36 +23,30 @@ def cnfg():
 
     # Dataset variables
     _folder = 1
-    _base_path = r"C:\\Users\\usuário\Documents\\mestrado\dissertação\datasets\\ISIC2017\\"
-    _csv_path_train = r"C:\\Users\\usuário\Documents\\mestrado\dissertação\datasets\\ISIC2017\\train\\ISIC-2017_Training_Part3_GroundTruth.csv"
-    _imgs_folder_train = r"C:\\Users\\usuário\Documents\\mestrado\dissertação\datasets\\ISIC2017\\train\\ISIC-2017_Training_Data_cropped\\"
-    _csv_path_train = r"C:\\Users\\usuário\Documents\\mestrado\dissertação\datasets\\ISIC2017\\train\\ISIC-2017_Training_Part3_GroundTruth.csv"
-    _imgs_folder_train_original = r"C:\\Users\\usuário\Documents\\mestrado\dissertação\datasets\\ISIC2017\\train\\ISIC-2017_Training_Data\\"
-    _imgs_folder_train_original_segmentation = r"C:\\Users\\usuário\Documents\\mestrado\dissertação\datasets\\ISIC2017\\train\\ISIC-2017_Training_Part1_GroundTruth\\"
+    _csv_path_train = "/home/a52550/Desktop/datasets/ISIC2017/train/ISIC-2017_Training_Part3_GroundTruth.csv"
+    _imgs_folder_train = "/home/a52550/Desktop/datasets/ISIC2017/train/ISIC-2017_Training_Data/"
 
-    _csv_path_validation = r"C:\\Users\\usuário\Documents\\mestrado\dissertação\datasets\\ISIC2017\\validation\\ISIC-2017_Validation_Part3_GroundTruth.csv"
-    _imgs_folder_validation = r"C:\\Users\\usuário\Documents\\mestrado\dissertação\datasets\\ISIC2017\\validation\\ISIC-2017_Validation_Data_cropped\\"
-    _imgs_folder_validation_original = r"C:\\Users\\usuário\Documents\\mestrado\dissertação\datasets\\ISIC2017\\validation\\ISIC-2017_Validation_Data\\"
-    _imgs_folder_validation_original_segmentation = r"C:\\Users\\usuário\Documents\\mestrado\dissertação\datasets\\ISIC2017\\validation\\ISIC-2017_Validation_Part1_GroundTruth\\"
-    _csv_path_test = r"C:\\Users\\usuário\Documents\\mestrado\dissertação\datasets\\ISIC2017\\test\\ISIC-2017_Test_v2_Part3_GroundTruth.csv"
-    _imgs_folder_test = r"C:\\Users\\usuário\Documents\\mestrado\dissertação\datasets\\ISIC2017\\test\\ISIC-2017_Test_Data\\"
-    _imgs_folder_test_segmentation = r"C:\\Users\\usuário\Documents\\mestrado\dissertação\datasets\\ISIC2017\\test\\ISIC-2017_Test_v2_Part1_GroundTruth\\"
+    _csv_path_validation = "/home/a52550/Desktop/datasets/ISIC2017/validation/ISIC-2017_Validation_Part3_GroundTruth.csv"
+    _imgs_folder_validation = "/home/a52550/Desktop/datasets/ISIC2017/validation/ISIC-2017_Validation_Data_cropped/"
+    _csv_path_test = "/home/a52550/Desktop/datasets/ISIC2017/test/ISIC-2017_Test_v2_Part3_GroundTruth.csv"
+    _imgs_folder_test = "/home/a52550/Desktop/datasets/ISIC2017/test/ISIC-2017_Test_Data/"
 
 
     _batch_size = 4
-    _epochs = 1
+    _epochs = 50
 
     # Training variables
     _best_metric = "accuracy"
     _pretrained = True
-    _lr_init = 0.001
+    _lr_init = 0.00001
     _sched_factor = 0.1
     _sched_min_lr = 1e-6
     _sched_patience = 10
     _early_stop = 15
     _weights = "frequency"
+    _optimizer = 'SGD'
 
-    _model_name = 'efficientnet_b3'
+    _model_name = 'efficientnet_b0'
     _save_folder = "results/" + _model_name + "_fold_" + str(_folder) + "_" + str(
         time.time()).replace('.', '')
 
@@ -67,9 +56,9 @@ def cnfg():
     ex.observers.append(SACRED_OBSERVER)
 
 @ex.automain
-def main (_folder, _csv_path_train, _imgs_folder_train, _csv_path_validation, _imgs_folder_validation, _csv_path_test, _imgs_folder_test, _lr_init, _sched_factor,
+def main (_csv_path_train, _imgs_folder_train, _csv_path_validation, _imgs_folder_validation, _csv_path_test, _imgs_folder_test, _lr_init, _sched_factor,
           _sched_min_lr, _sched_patience, _batch_size, _epochs, _early_stop, _weights, _model_name,
-          _save_folder, _best_metric):
+          _save_folder, _best_metric, _optimizer):
 
     _metric_options = {
         'save_all_path': os.path.join(_save_folder, "best_metrics"),
@@ -81,6 +70,13 @@ def main (_folder, _csv_path_train, _imgs_folder_train, _csv_path_validation, _i
     print("- Loading validation data...")
     val_csv_folder = pd.read_csv(_csv_path_validation)
     train_csv_folder = pd.read_csv(_csv_path_train)
+    
+    ser_lab_freq = get_labels_frequency(train_csv_folder, "category", "image_id")
+    _labels_name = ser_lab_freq.index.values
+    _freq = ser_lab_freq.values
+    ####################################################################################################################
+
+    model = set_model(_model_name, len(_labels_name))
 
     # Loading validation data
     val_imgs_id = val_csv_folder['image_id'].values
@@ -90,7 +86,7 @@ def main (_folder, _csv_path_train, _imgs_folder_train, _csv_path_validation, _i
     val_meta_data = None
 
     print("-- val_data_loader starting...")
-    val_data_loader = get_data_loader (val_imgs_path, val_labels, val_meta_data, transform=ImgEvalTransform(),
+    val_data_loader = get_data_loader (val_imgs_path, val_labels, val_meta_data, transform=ImgEvalTransform(size=model.default_cfg['input_size'][1:], normalization=(model.default_cfg['mean'], model.default_cfg['std'])),
                                        batch_size=_batch_size, shuf=True, num_workers=16, pin_memory=True)
     print("-- Validation partition loaded with {} images".format(len(val_data_loader)*_batch_size))
 
@@ -101,32 +97,30 @@ def main (_folder, _csv_path_train, _imgs_folder_train, _csv_path_validation, _i
     train_labels = train_csv_folder['category'].values
     train_meta_data = None
 
-    train_data_loader = get_data_loader (train_imgs_path, train_labels, train_meta_data, transform=ImgEvalTransform(),
+    train_data_loader = get_data_loader (train_imgs_path, train_labels, train_meta_data, transform=ImgEvalTransform(size=model.default_cfg['input_size'][1:], normalization=(model.default_cfg['mean'], model.default_cfg['std'])),
                                        batch_size=_batch_size, shuf=True, num_workers=16, pin_memory=True)
     print("-- Training partition loaded with {} images".format(len(train_data_loader)*_batch_size))
 
     print("-"*50)
     ####################################################################################################################
 
-    ser_lab_freq = get_labels_frequency(train_csv_folder, "category", "image_id")
-    _labels_name = ser_lab_freq.index.values
-    _freq = ser_lab_freq.values
-    ####################################################################################################################
     print("- Loading", _model_name)
 
-    model = set_model(_model_name, len(_labels_name))
     ####################################################################################################################
     if _weights == 'frequency':
         _weights = (_freq.sum() / _freq).round(3)
     loss_fn = nn.CrossEntropyLoss(weight=torch.Tensor(_weights).cuda())
-    optimizer = optim.Adam(model.parameters(), lr=_lr_init, weight_decay=0.001)
+    if _optimizer == 'adam':
+        optimizer = optim.Adam(model.parameters(), lr=_lr_init)
+    else:
+        optimizer = optim.SGD(model.parameters(), lr=_lr_init)
     scheduler_lr = optim.lr_scheduler.ReduceLROnPlateau(optimizer, factor=_sched_factor, min_lr=_sched_min_lr,
                                                                     patience=_sched_patience)
     ####################################################################################################################
 
     print("- Starting the training phase...")
     print("-" * 50)
-    fit_model (model, train_data_loader, val_data_loader, optimizer=optimizer, loss_fn=loss_fn, epochs=_epochs,
+    fit_model (model, train_data_loader, val_data_loader, class_names=_labels_name, optimizer=optimizer, loss_fn=loss_fn, epochs=_epochs,
                epochs_early_stop=_early_stop, save_folder=_save_folder, initial_model=None,
                device=None, schedule_lr=scheduler_lr, config_bot=None, model_name="CNN", resume_train=False,
                history_plot=True, val_metrics=["all"], best_metric=_best_metric)
@@ -152,12 +146,12 @@ def main (_folder, _csv_path_train, _imgs_folder_train, _csv_path_validation, _i
             'save_all_path': os.path.join(_save_folder, "test_pred"),
             'pred_name_scores': 'predictions.csv',
         }
-        test_data_loader = get_data_loader(test_imgs_path, test_labels, transform=ImgEvalTransform(),
+        test_data_loader = get_data_loader(test_imgs_path, test_labels, transform=ImgEvalTransform(size=model.default_cfg['input_size'][1:], normalization=(model.default_cfg['mean'], model.default_cfg['std'])),
                                            batch_size=_batch_size, shuf=False, num_workers=16, pin_memory=True)
         print("-" * 50)
 
         # Testing the test partition
         print("\n- Evaluating the testing partition...")
-        test_model(model, test_data_loader, checkpoint_path=None, metrics_to_comp=None,
-                   class_names=_labels_name, metrics_options=_metric_options, save_pred=False, verbose=False)
+        test_model(model, test_data_loader, metrics_to_comp='all',
+                   class_names=_labels_name, metrics_options=_metric_options, save_pred=False, verbose=True)
     ####################################################################################################################

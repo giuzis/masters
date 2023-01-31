@@ -123,7 +123,9 @@ def main (_csv_path_train, _imgs_folder_train, _csv_path_validation, _imgs_folde
     fit_model (model, train_data_loader, val_data_loader, class_names=_labels_name, optimizer=optimizer, loss_fn=loss_fn, epochs=_epochs,
                epochs_early_stop=_early_stop, save_folder=_save_folder, initial_model=None,
                device=None, schedule_lr=scheduler_lr, config_bot=None, model_name="CNN", resume_train=False,
-               history_plot=True, val_metrics=["all"], best_metric=_best_metric)
+               history_plot=True, val_metrics=["accuracy", "topk_accuracy", "balanced_accuracy",  "conf_matrix", "plot_conf_matrix",
+                                  "precision_recall_report", "auc_and_roc_curve", "auc"]
+                                  , best_metric=_best_metric)
     # ####################################################################################################################
 
     # Testing the validation partition

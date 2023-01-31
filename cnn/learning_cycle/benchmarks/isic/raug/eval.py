@@ -51,16 +51,17 @@ def metrics_for_eval (model, data_loader, device, loss_fn, class_names, topk=2, 
 
             opt_metrics = list()
             
-            if get_all:
-                metrics = Metrics(metrics_names = 'all', class_names=class_names)
-            elif not get_balanced_acc and not get_auc:
-                metrics = None
-            else:                
-                if get_balanced_acc:
-                    opt_metrics.append('balanced_accuracy')
-                if get_auc:
-                    opt_metrics.append('auc')                        
-                metrics = Metrics(opt_metrics, class_names=class_names)                
+            # if get_all:
+            metrics = Metrics(metrics_names = ["accuracy", "topk_accuracy", "balanced_accuracy",  "conf_matrix", "plot_conf_matrix",  "precision_recall_report", "auc_and_roc_curve", "auc"], 
+                              class_names=class_names)
+            # elif not get_balanced_acc and not get_auc:
+            #     metrics = None
+            # else:                
+            #     if get_balanced_acc:
+            #         opt_metrics.append('balanced_accuracy')
+            #     if get_auc:
+            #         opt_metrics.append('auc')                        
+            #     metrics = Metrics(opt_metrics, class_names=class_names)                
 
 
             for data in data_loader:

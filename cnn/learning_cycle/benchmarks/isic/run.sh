@@ -5,5 +5,9 @@ declare -a StringArray=("senet154" "resnext101_32x4d" "resnext101_32x8d" "effici
 
 # Iterate the string array using for loop
 for val in ${StringArray[@]}; do
-    python3.7 isic.py with _model_name="$val"
+    python3.7 isic.py with _model_name="$val" _batch_size=20
+done
+
+for val in ${StringArray[@]}; do
+    python3.7 isic.py with _model_name="$val" _batch_size=100
 done

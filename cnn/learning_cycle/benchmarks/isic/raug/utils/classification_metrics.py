@@ -95,6 +95,27 @@ class AVGMetrics (object):
         print('count: ', self.count)
         print('avg: ', self.avg)
 
+def precision_recall_fscore_support (lab_real, lab_pred, labels=None):
+    """
+    Computes the precision, recall, fscore and support. Both lab_real and lab_pred can be a labels array or and a array of
+    scores (one hot encoding) for each class.
+
+    :param lab_real(np.array): the data real labels
+    :param lab_pred(np.array): the predictions returned by the model
+    :param verbose(bool, optional): if you'd like to print the precision, recall, fscore and support. Dafault is False.
+    :return (float): the precision, recall, fscore and support
+    """
+
+    # Checkin the array dimension
+    lab_real, lab_pred = _check_dim (lab_real, lab_pred, mode='labels')
+
+    prec_macro, rec_macro, fscore_macro, sup_macro = skmet.precision_recall_fscore_support(lab_real, lab_pred, average='macro', labels=labels)
+    prec_micro, rec_micro, fscore_micro, sup_micro = skmet.precision_recall_fscore_support(lab_real, lab_pred, average='micro', labels=labels)
+    prec_weighted, rec_weighted, fscore_weighted, sup_weighted = skmet.precision_recall_fscore_support(lab_real, lab_pred, average='weighted', labels=labels)
+
+    return {'precision_macro': prec_macro, 'recall_macro': rec_macro, 'fscore_macro': fscore_macro, 'support_macro': sup_macro,
+            'precision_micro': prec_micro, 'recall_micro': rec_micro, 'fscore_micro': fscore_micro, 'support_micro': sup_micro,
+            'precision_weighted': prec_weighted, 'recall_weighted': rec_weighted, 'fscore_weighted': fscore_weighted, 'support_weighted': sup_weighted}
 
 def accuracy (lab_real, lab_pred, verbose=False):
     """
@@ -246,20 +267,6 @@ def balanced_accuracy (lab_real, lab_pred):
     return skmet.balanced_accuracy_score(lab_real, lab_pred)
 
 
-def sensitivity_and_specificity (lab_real, lab_pred):
-    """
-    This computes the balance accuracy for binary or multiclass classification tasks. This metric is the average recall
-    or sensitivity
-
-    :param lab_real (np.array): the data real labels
-    :param lab_pred (np.array): the predictions returned by the model
-    :return (number): the balanced accuracy
-    """
-
-    tn, fp, fn, tp = skmet.confusion_matrix(lab_real, lab_pred).ravel()
-    return [tp/(tp+fn), tn / (tn+fp)]
-
-
 def precision_recall_report (lab_real, lab_pred, class_names=None, verbose=False, output_dict=False):
     """
     Computes the precision, recall, F1 score and support for each class. Both lab_real and lab_pred can be a labels
@@ -407,7 +414,6 @@ def get_metrics_from_csv (csv, class_names=None, topk=2, conf_mat=False, conf_ma
     labels = np.array(labels)
 
     acc = accuracy(labels, preds)
-    sensitivity, specificity = sensitivity_and_specificity(labels, preds)
     topk_acc = topk_accuracy(labels, preds, topk)
     ba = balanced_accuracy(labels, preds)
     rep =  precision_recall_report(labels, preds, class_names, output_dict=True)
@@ -434,11 +440,10 @@ def get_metrics_from_csv (csv, class_names=None, topk=2, conf_mat=False, conf_ma
         print("- Metrics:")
         print("- Loss: {:.3f}".format(loss))
         print("- Accuracy: {:.3f}".format(acc))
-        print("- Sensitivity: {:.3f}".format(sensitivity))
-        print("- Specificity: {:.3f}".format(specificity))
         print("- Top {} Accuracy: {:.3f}".format(topk, topk_acc))
         print("- Balanced accuracy: {:.3f}".format(ba))
         print("- AUC macro: {:.3f}".format(auc['macro']))
+        print("- Report: ", rep)
 
-    return acc, topk_acc, ba, rep, auc, loss, fpr, tpr, sensitivity, specificity
+    return acc, topk_acc, ba, rep, auc, loss, fpr, tpr
 

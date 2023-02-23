@@ -11,7 +11,6 @@ from .metrics import accuracy, TrainHistory
 from .utils.classification_metrics import AVGMetrics
 import logging
 import time
-import segmentation_models_pytorch as smp
 
 
 def _config_logger(save_path, file_name):
@@ -169,19 +168,6 @@ def fit_model (model, train_data_loader, val_data_loader, class_names, optimizer
 
     history = TrainHistory()
 
-    # Configuring the Telegram bot
-    tele_bot = None
-    if config_bot is not None:
-        logger.info('Using TelegramBot to track the training')
-        if isinstance(config_bot, str):
-            tele_bot = TelegramBot(config_bot, model_name=model_name)
-        elif isinstance(config_bot, dict):
-            config_bot["model_name"] = model_name
-            tele_bot = TelegramBot(**config_bot)
-        else:
-            logger.error("There is a problem in config_bot variable")
-            raise Exception("- The config_bot is not ok. Check it, please!")
-
     if loss_fn is None:
         logger.info('Loss was set as None. Using the CrossEntropy as default')
         loss_fn = nn.CrossEntropyLoss()
@@ -273,7 +259,7 @@ def fit_model (model, train_data_loader, val_data_loader, class_names, optimizer
 
         # After each epoch, we evaluate the model for the training and validation data
         val_metrics = metrics_for_eval (model, val_data_loader, device, loss_fn, class_names, topk,
-                                        get_all=True)
+                                        metrics=val_metrics)
 
         # Checking the schedule if applicable
         if isinstance(schedule_lr, torch.optim.lr_scheduler.ReduceLROnPlateau):
@@ -321,16 +307,16 @@ def fit_model (model, train_data_loader, val_data_loader, class_names, optimizer
         new_best_print = None
         # Defining the best metric for validation
         if best_metric == 'loss':
-            if val_metrics[best_metric] <= best_metric_value:
+            if val_metrics[best_metric] < best_metric_value:
                 best_metric_value = val_metrics[best_metric]
                 new_best_print = '\n-- New best {}: {:.3f}'.format(best_metric, best_metric_value)
                 best_flag = True
                 best_epoch = epoch
                 early_stop_count = 0
         else:
-            if val_metrics[best_metric] >= best_metric_value:
+            if val_metrics[best_metric] > best_metric_value:
                 best_metric_value = val_metrics[best_metric]
-                new_best_print = '\-- New best {}: {:.3f}'.format(best_metric, best_metric_value)
+                new_best_print = '\n-- New best {}: {:.3f}'.format(best_metric, best_metric_value)
                 best_flag = True
                 best_epoch = epoch
                 early_stop_count = 0
@@ -352,18 +338,6 @@ def fit_model (model, train_data_loader, val_data_loader, class_names, optimizer
         if new_best_print is not None:
             msg += new_best_print
         msg += "\n-- Best {} so far: {:.3f} on epoch {}\n".format(best_metric, best_metric_value, best_epoch)
-
-        # Updating the bot
-        if tele_bot is not None:
-            msg_best = "The best {} for the validation set so far is {:.3f} on epoch {}".format(best_metric,
-                                                                                                best_metric_value,
-                                                                                                best_epoch)
-            tele_bot.best_info = msg_best
-
-            if tele_bot.info:
-                tele_bot.send_msg(msg)
-
-            tele_bot.current_epoch = "The current training epoch is {} out of {} and the current LR is {}".format(epoch, epochs, current_LR)
 
         # Checking the early stop
         if epochs_early_stop is not None:
@@ -404,3 +378,5 @@ def fit_model (model, train_data_loader, val_data_loader, class_names, optimizer
     print('\n')
 
     writer.close()
+
+    return epoch, best_metric_value, best_epoch

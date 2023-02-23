@@ -102,14 +102,12 @@ class Metrics:
         
         if self.metrics_names == "all":
             self.metrics_names = ["accuracy", "topk_accuracy", "balanced_accuracy",  "conf_matrix", "plot_conf_matrix",
-                                  "precision_recall_report", "auc_and_roc_curve", "auc", "sensitivity", "specificity"]
+                                  "precision_recall_report", "auc_and_roc_curve", "auc"]
         
         
         for mets in self.metrics_names:
             if mets == "accuracy":
                 self.metrics_values["accuracy"] = cmet.accuracy(self.label_scores, self.pred_scores)
-            elif mets == "sensitivity" or mets == "specificity":
-                self.metrics_values["sensitivity"], self.metrics_values["specificity"] = cmet.sensitivity_and_specificity(self.label_scores, self.pred_scores)    
             elif mets == "balanced_accuracy":
                 self.metrics_values["balanced_accuracy"] = cmet.balanced_accuracy(self.label_scores, self.pred_scores)
             elif mets == "topk_accuracy":
@@ -185,6 +183,8 @@ class Metrics:
                 self.metrics_values["auc_and_roc_curve"] = cmet.auc_and_roc_curve(self.label_scores, self.pred_scores,
                                                                                   self.class_names, class_to_compute, 
                                                                                   save_path)
+            self.metrics_values = {**self.metrics_values, **cmet.precision_recall_fscore_support(self.label_scores,
+                                                                                                    self.pred_scores, labels=self.class_names)}
 
             if save_all_path is not None:
                 self.save_metrics(save_all_path)
@@ -267,10 +267,6 @@ class Metrics:
                         f.write('- Loss: {:.3f}\n'.format(self.metrics_values[met]))
                     elif met == "accuracy":
                         f.write('- Accuracy: {:.3f}\n'.format(self.metrics_values[met]))
-                    elif met == "sensitivity":
-                        f.write('- Sensitivity: {:.3f}\n'.format(self.metrics_values[met]))
-                    elif met == "specificity":
-                        f.write('- Specificity: {:.3f}\n'.format(self.metrics_values[met]))
                     elif met == "balanced_accuracy":
                         f.write('- Balanced accuracy: {:.3f}\n'.format(self.metrics_values[met]))
                     elif met == "topk_accuracy":
@@ -284,7 +280,6 @@ class Metrics:
                     elif met == "auc_and_roc_curve":
                         resp = self.metrics_values[met]
                         f.write('- AUC:\n {}\n'.format(resp[0]))
-
 
     def save_scores (self, folder_path=None, pred_name="predictions.csv"):
         """

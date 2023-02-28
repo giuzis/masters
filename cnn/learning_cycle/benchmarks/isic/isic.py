@@ -37,7 +37,7 @@ def cnfg():
 
 
     # Training variables
-    _batch_size = 10
+    _batch_size = 32
     _epochs = 50
     _best_metric = "accuracy"
     _pretrained = True
@@ -47,9 +47,17 @@ def cnfg():
     _sched_patience = 10
     _early_stop = 15
     _weights = "frequency"
-    _optimizer = 'SGD' # 'SGD', 'Adam', 'AdamW', 'Nadam', 'Radam', 'AdamP', 'Lookahead_Adam', 'Lookahead_AdamW', 'Lookahead_Nadam', 'Lookahead_Radam', 'Lookahead_AdamP'
+    _optimizer = 'Adam' # 'SGD', 'Adam', 'AdamW', 'Nadam', 'Radam', 'AdamP', 'Lookahead_Adam', 'Lookahead_AdamW', 'Lookahead_Nadam', 'Lookahead_Radam', 'Lookahead_AdamP'
+    _data_augmentation = False
+    _PP_enhancement = None
+    _PP_hair_removal = None
+    _PP_color_constancy = None
+    _PP_denoising = None
+    _PP_normalization = None
+    _PP_crop_mode = None
+    _PP_resizing = None
 
-    _model_name = 'vgg19'
+    _model_name = 'senet154'
     # _save_folder = "results/" + _model_name + "_fold_" + str(_folder) + "_" + str(time.time()).replace('.', '')
     _save_folder = f"results/{_model_name}_" +\
         f"fold-{_folder}_" +\
@@ -67,7 +75,9 @@ def cnfg():
 @ex.automain
 def main (_csv_path_train, _imgs_folder_train, _csv_path_validation, _imgs_folder_validation, 
           _csv_path_test, _imgs_folder_test, _lr_init, _sched_factor, _sched_min_lr, _sched_patience, 
-          _batch_size, _epochs, _early_stop, _weights, _model_name, _save_folder, _best_metric, _optimizer, _csv_path_all_metrics):
+          _batch_size, _epochs, _early_stop, _weights, _model_name, _save_folder, _best_metric, _optimizer, 
+          _csv_path_all_metrics, _data_augmentation, _PP_enhancement, _PP_hair_removal, _PP_color_constancy,
+          _PP_denoising, _PP_normalization, _PP_crop_mode, _PP_resizing):
 
     _metric_options = {
         'save_all_path': os.path.join(_save_folder, "best_metrics"),
@@ -178,6 +188,14 @@ def main (_csv_path_train, _imgs_folder_train, _csv_path_validation, _imgs_folde
         "best_metric_value_train": _best_metric_value,
         "best_epoch_train": _best_epoch,
         "last_epoch_train": _last_epoch,
+        "data_augmentation": _data_augmentation,
+        "PP_enhancement": _PP_enhancement,
+        "PP_hair_removal": _PP_hair_removal,
+        "PP_color_constancy": _PP_color_constancy,
+        "PP_denoising": _PP_denoising,
+        "PP_normalization": _PP_normalization,
+        "PP_crop_mode": _PP_crop_mode,
+        "PP_resizing": _PP_resizing,
     }
 
     validation_metrics = test_model (model, val_data_loader, checkpoint_path=_checkpoint_best, loss_fn=loss_fn, save_pred=True,
@@ -218,6 +236,14 @@ def main (_csv_path_train, _imgs_folder_train, _csv_path_validation, _imgs_folde
             "best_metric_value_train": _best_metric_value,
             "best_epoch_train": _best_epoch,
             "last_epoch_train": _last_epoch,
+            "data_augmentation": _data_augmentation,
+            "PP_enhancement": _PP_enhancement,
+            "PP_hair_removal": _PP_hair_removal,
+            "PP_color_constancy": _PP_color_constancy,
+            "PP_denoising": _PP_denoising,
+            "PP_normalization": _PP_normalization,
+            "PP_crop_mode": _PP_crop_mode,
+            "PP_resizing": _PP_resizing,
         }
 
         _metric_options = {
@@ -273,6 +299,14 @@ def main (_csv_path_train, _imgs_folder_train, _csv_path_validation, _imgs_folde
             "best_metric_value_train": _best_metric_value,
             "best_epoch_train": _best_epoch,
             "last_epoch_train": _last_epoch,
+            "data_augmentation": _data_augmentation,
+            "PP_enhancement": _PP_enhancement,
+            "PP_hair_removal": _PP_hair_removal,
+            "PP_color_constancy": _PP_color_constancy,
+            "PP_denoising": _PP_denoising,
+            "PP_normalization": _PP_normalization,
+            "PP_crop_mode": _PP_crop_mode,
+            "PP_resizing": _PP_resizing
         }
         
         del test_metrics['conf_matrix']

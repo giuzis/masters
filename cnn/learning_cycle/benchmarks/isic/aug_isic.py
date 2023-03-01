@@ -1,6 +1,7 @@
 
 from imgaug import augmenters as iaa
 import numpy as np
+import torchvision
 import torchvision.transforms as transforms
 from auto_augment import AutoAugment, Cutout
 import albumentations

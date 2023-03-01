@@ -1,7 +1,6 @@
 
 from imgaug import augmenters as iaa
 import numpy as np
-import torchvision
 import torchvision.transforms as transforms
 from auto_augment import AutoAugment, Cutout
 import albumentations
@@ -61,11 +60,12 @@ class ImgEvalTransform:
 
 class ImgTrainTransform:
 
-    def __init__(self, size=(224,224), normalization=((0.485, 0.456, 0.406), (0.229, 0.224, 0.225)), type=1):
+    def __init__(self, size=(224,224), normalization=((0.485, 0.456, 0.406), (0.229, 0.224, 0.225)), type=1, crop_mode = None):
 
         self.size = size
         self.normalization = normalization
         self.type = type
+        self.crop_mode = crop_mode
 
     def __call__(self, img):
         if self.type == 1:
@@ -76,15 +76,18 @@ class ImgTrainTransform:
             return transform(image=numpy.array(img))['image']
     
     def getTransform(self, img_size):
-        return transforms.Compose([
-            transforms.RandomCrop(img_size),
-            transforms.Resize(self.size[0]),
+        t = [transforms.RandomCrop(img_size)] if self.crop_modecrop_mode == "random" else []
+        t = [transforms.CenterCrop(img_size)] if self.crop_modecrop_mode == "center" else []
+        t.extend([
+            transforms.Resize(self.size),
             transforms.RandomHorizontalFlip(),
             AutoAugment(),
             Cutout(),
             transforms.ToTensor(),
             transforms.Normalize(self.normalization[0], self.normalization[1]),
         ])
+
+        return transforms.Compose(t)
 
     def getTransform2(self):
         return albumentations.Compose([

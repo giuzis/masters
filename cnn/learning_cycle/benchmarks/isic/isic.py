@@ -25,13 +25,13 @@ def cnfg():
 
     # Dataset variables
     _folder = 1
-    _csv_path_train = "/home/a52550/Desktop/datasets/ISIC2017/train/ISIC-2017_Training_Part3_GroundTruth.csv"
-    _imgs_folder_train = "/home/a52550/Desktop/datasets/ISIC2017/train/ISIC-2017_Training_Data/"
+    _csv_path_train = "~/Desktop/datasets/ISIC2017/train/ISIC-2017_Training_Part3_GroundTruth.csv"
+    _imgs_folder_train = "~/Desktop/datasets/ISIC2017/train/ISIC-2017_Training_Data/"
 
-    _csv_path_validation = "/home/a52550/Desktop/datasets/ISIC2017/validation/ISIC-2017_Validation_Part3_GroundTruth.csv"
-    _imgs_folder_validation = "/home/a52550/Desktop/datasets/ISIC2017/validation/ISIC-2017_Validation_Data_cropped/"
-    _csv_path_test = "/home/a52550/Desktop/datasets/ISIC2017/test/ISIC-2017_Test_v2_Part3_GroundTruth.csv"
-    _imgs_folder_test = "/home/a52550/Desktop/datasets/ISIC2017/test/ISIC-2017_Test_Data/"
+    _csv_path_validation = "~/Desktop/datasets/ISIC2017/validation/ISIC-2017_Validation_Part3_GroundTruth.csv"
+    _imgs_folder_validation = "~/Desktop/datasets/ISIC2017/validation/ISIC-2017_Validation_Data_cropped/"
+    _csv_path_test = "~/Desktop/datasets/ISIC2017/test/ISIC-2017_Test_v2_Part3_GroundTruth.csv"
+    _imgs_folder_test = "~/Desktop/datasets/ISIC2017/test/ISIC-2017_Test_Data/"
 
     _csv_path_all_metrics = "results/all_metrics.csv"
 
@@ -47,19 +47,15 @@ def cnfg():
     _sched_patience = 10
     _early_stop = 15
     _weights = "frequency"
-<<<<<<< HEAD
-    _optimizer = 'SGD' # 'SGD', 'Adam', 'AdamW', 'Nadam', 'Radam', 'AdamP', 'Lookahead_Adam', 'Lookahead_AdamW', 'Lookahead_Nadam', 'Lookahead_Radam', 'Lookahead_AdamP'
-=======
     _optimizer = 'Adam' # 'SGD', 'Adam', 'AdamW', 'Nadam', 'Radam', 'AdamP', 'Lookahead_Adam', 'Lookahead_AdamW', 'Lookahead_Nadam', 'Lookahead_Radam', 'Lookahead_AdamP'
->>>>>>> 92353f909c769b82268a1a3f5b29c80750557524
     _data_augmentation = False
     _PP_enhancement = None
     _PP_hair_removal = None
     _PP_color_constancy = None
     _PP_denoising = None
-    _PP_normalization = None
+    _PP_normalization = True
     _PP_crop_mode = None
-    _PP_resizing = None
+    _PP_resizing = True
 
     _model_name = 'senet154'
     # _save_folder = "results/" + _model_name + "_fold_" + str(_folder) + "_" + str(time.time()).replace('.', '')
@@ -136,6 +132,10 @@ def main (_csv_path_train, _imgs_folder_train, _csv_path_validation, _imgs_folde
     train_imgs_path = ["{}{}.jpg".format(_imgs_folder_train, img_id) for img_id in train_imgs_id]
     train_labels = train_csv_folder['category'].values
     train_meta_data = None
+    if _data_augmentation == True or _data_augmentation == "True":
+        train_transform = ImgTrainTransform(size=model.default_cfg['input_size'][1:], 
+                                         normalization=(model.default_cfg['mean'], model.default_cfg['std']),
+                                         type=1, crop_mode = _PP_crop_mode)
 
     train_data_loader = get_data_loader (train_imgs_path, train_labels, train_meta_data, 
                                          transform=ImgEvalTransform(size=model.default_cfg['input_size'][1:], 

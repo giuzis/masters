@@ -37,7 +37,7 @@ def cnfg():
 
 
     # Training variables
-    _batch_size = 10
+    _batch_size = 32
     _epochs = 50
     _best_metric = "accuracy"
     _pretrained = True
@@ -47,7 +47,11 @@ def cnfg():
     _sched_patience = 10
     _early_stop = 15
     _weights = "frequency"
+<<<<<<< HEAD
     _optimizer = 'SGD' # 'SGD', 'Adam', 'AdamW', 'Nadam', 'Radam', 'AdamP', 'Lookahead_Adam', 'Lookahead_AdamW', 'Lookahead_Nadam', 'Lookahead_Radam', 'Lookahead_AdamP'
+=======
+    _optimizer = 'Adam' # 'SGD', 'Adam', 'AdamW', 'Nadam', 'Radam', 'AdamP', 'Lookahead_Adam', 'Lookahead_AdamW', 'Lookahead_Nadam', 'Lookahead_Radam', 'Lookahead_AdamP'
+>>>>>>> 92353f909c769b82268a1a3f5b29c80750557524
     _data_augmentation = False
     _PP_enhancement = None
     _PP_hair_removal = None
@@ -57,7 +61,7 @@ def cnfg():
     _PP_crop_mode = None
     _PP_resizing = None
 
-    _model_name = 'efficientnet_b0'
+    _model_name = 'senet154'
     # _save_folder = "results/" + _model_name + "_fold_" + str(_folder) + "_" + str(time.time()).replace('.', '')
     _save_folder = f"results/{_model_name}_" +\
         f"fold-{_folder}_" +\

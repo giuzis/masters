@@ -1,4 +1,5 @@
 benchmarks/**/results
+benchmarks/**/venv
 benchmarks/**/logs
 
 # Byte-compiled / optimized / DLL files

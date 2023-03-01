@@ -17,3 +17,5 @@ timm
 xlrd
 networkx==1.11
 scikit-image
+pytorch_lightning
+segmentation_models_pytorch

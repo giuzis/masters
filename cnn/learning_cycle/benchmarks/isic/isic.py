@@ -48,8 +48,16 @@ def cnfg():
     _early_stop = 15
     _weights = "frequency"
     _optimizer = 'SGD' # 'SGD', 'Adam', 'AdamW', 'Nadam', 'Radam', 'AdamP', 'Lookahead_Adam', 'Lookahead_AdamW', 'Lookahead_Nadam', 'Lookahead_Radam', 'Lookahead_AdamP'
+    _data_augmentation = False
+    _PP_enhancement = None
+    _PP_hair_removal = None
+    _PP_color_constancy = None
+    _PP_denoising = None
+    _PP_normalization = None
+    _PP_crop_mode = None
+    _PP_resizing = None
 
-    _model_name = 'vgg19'
+    _model_name = 'efficientnet_b0'
     # _save_folder = "results/" + _model_name + "_fold_" + str(_folder) + "_" + str(time.time()).replace('.', '')
     _save_folder = f"results/{_model_name}_" +\
         f"fold-{_folder}_" +\
@@ -57,6 +65,14 @@ def cnfg():
         f"batchsize-{_batch_size}_" +\
         f"optimizer-{_optimizer}_" +\
         f"maxepochs-{_epochs}_" +\
+        f"DA-{_data_augmentation}_" +\
+        f"PPen-{_PP_enhancement}_" +\
+        f"PPha-{_PP_hair_removal}_" +\
+        f"PPco-{_PP_color_constancy}_" +\
+        f"PPde-{_PP_denoising}_" +\
+        f"PPno-{_PP_normalization}_" +\
+        f"PPcr-{_PP_crop_mode}_" +\
+        f"PPre-{_PP_resizing}_" +\
         f"{str(time.time()).replace('.', '')}"
 
     # This is used to configure the sacred storage observer. In brief, it says to sacred to save its stuffs in
@@ -67,7 +83,9 @@ def cnfg():
 @ex.automain
 def main (_csv_path_train, _imgs_folder_train, _csv_path_validation, _imgs_folder_validation, 
           _csv_path_test, _imgs_folder_test, _lr_init, _sched_factor, _sched_min_lr, _sched_patience, 
-          _batch_size, _epochs, _early_stop, _weights, _model_name, _save_folder, _best_metric, _optimizer, _csv_path_all_metrics):
+          _batch_size, _epochs, _early_stop, _weights, _model_name, _save_folder, _best_metric, _optimizer, 
+          _csv_path_all_metrics, _data_augmentation, _PP_enhancement, _PP_hair_removal, _PP_color_constancy,
+          _PP_denoising, _PP_normalization, _PP_crop_mode, _PP_resizing):
 
     _metric_options = {
         'save_all_path': os.path.join(_save_folder, "best_metrics"),
@@ -151,10 +169,11 @@ def main (_csv_path_train, _imgs_folder_train, _csv_path_validation, _imgs_folde
     print("-" * 50)
     print("- Starting the training phase...")
     print("-" * 50)
-    _last_epoch, _best_metric_value, _best_epoch = fit_model (model, train_data_loader, val_data_loader, class_names=_labels_name, optimizer=optimizer, loss_fn=loss_fn, epochs=_epochs,
-               epochs_early_stop=_early_stop, save_folder=_save_folder, initial_model=None, device=None, schedule_lr=scheduler_lr, 
-               config_bot=None, model_name="CNN", resume_train=False, history_plot=True, 
-               val_metrics=_all_metrics, best_metric=_best_metric)
+    _last_epoch, _best_metric_value, _best_epoch = fit_model (model, train_data_loader, val_data_loader, class_names=_labels_name, 
+                                                              optimizer=optimizer, loss_fn=loss_fn, epochs=_epochs, epochs_early_stop=_early_stop, 
+                                                              save_folder=_save_folder, initial_model=None, device=None, schedule_lr=scheduler_lr,
+                                                              config_bot=None, model_name="CNN", resume_train=False, history_plot=True, 
+                                                              val_metrics=_all_metrics, best_metric=_best_metric),
     # ####################################################################################################################
 
     # Testing the validation partition
@@ -178,6 +197,14 @@ def main (_csv_path_train, _imgs_folder_train, _csv_path_validation, _imgs_folde
         "best_metric_value_train": _best_metric_value,
         "best_epoch_train": _best_epoch,
         "last_epoch_train": _last_epoch,
+        "data_augmentation": _data_augmentation,
+        "PP_enhancement": _PP_enhancement,
+        "PP_hair_removal": _PP_hair_removal,
+        "PP_color_constancy": _PP_color_constancy,
+        "PP_denoising": _PP_denoising,
+        "PP_normalization": _PP_normalization,
+        "PP_crop_mode": _PP_crop_mode,
+        "PP_resizing": _PP_resizing,
     }
 
     validation_metrics = test_model (model, val_data_loader, checkpoint_path=_checkpoint_best, loss_fn=loss_fn, save_pred=True,
@@ -218,6 +245,14 @@ def main (_csv_path_train, _imgs_folder_train, _csv_path_validation, _imgs_folde
             "best_metric_value_train": _best_metric_value,
             "best_epoch_train": _best_epoch,
             "last_epoch_train": _last_epoch,
+            "data_augmentation": _data_augmentation,
+            "PP_enhancement": _PP_enhancement,
+            "PP_hair_removal": _PP_hair_removal,
+            "PP_color_constancy": _PP_color_constancy,
+            "PP_denoising": _PP_denoising,
+            "PP_normalization": _PP_normalization,
+            "PP_crop_mode": _PP_crop_mode,
+            "PP_resizing": _PP_resizing,
         }
 
         _metric_options = {
@@ -273,6 +308,14 @@ def main (_csv_path_train, _imgs_folder_train, _csv_path_validation, _imgs_folde
             "best_metric_value_train": _best_metric_value,
             "best_epoch_train": _best_epoch,
             "last_epoch_train": _last_epoch,
+            "data_augmentation": _data_augmentation,
+            "PP_enhancement": _PP_enhancement,
+            "PP_hair_removal": _PP_hair_removal,
+            "PP_color_constancy": _PP_color_constancy,
+            "PP_denoising": _PP_denoising,
+            "PP_normalization": _PP_normalization,
+            "PP_crop_mode": _PP_crop_mode,
+            "PP_resizing": _PP_resizing
         }
         
         del test_metrics['conf_matrix']

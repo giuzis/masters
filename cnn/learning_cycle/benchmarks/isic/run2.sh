@@ -1,20 +1,13 @@
 #!/bin/bash
 
 # Declare an array of string with type
-# declare -a modelArray=("senet154" "resnext101_32x4d" "resnext101_32x8d" "efficientnet_b0" "efficientnet_b1" "efficientnet_b2" "efficientnet_b3" "efficientnet_b4" "efficientnet_b5" "efficientnet_b6" "efficientnet_b7" "pnasnet" "vgg19" "seresnext101_32x4d" "seresnext101_32x8d" "resnest101e")
-declare -a optArray=("AdamW" "Adadelta" "NovoGrad")
+declare -a modelArray=("efficientnet_b0" "efficientnet_b1" "efficientnet_b2" "efficientnet_b3" "efficientnet_b4" "efficientnet_b5" "efficientnet_b6" "efficientnet_b7")
 
-for val2 in ${optArray[@]}
+for val2 in ${modelArray[@]}
 do
-    python isic.py with _model_name=efficientnet_b5 _optimizer="$val2" _batch_size=4 _lr_init=0.001
+    python isic.py with _model_name="$val2" _optimizer=AdamW _batch_size=16 _lr_init=0.001
 done
-
-for val2 in ${optArray[@]}
+for val2 in ${modelArray[@]}
 do
-    python isic.py with _model_name=efficientnet_b5 _optimizer="$val2" _batch_size=10 _lr_init=0.001
-done
-
-for val2 in ${optArray[@]}
-do
-    python isic.py with _model_name=efficientnet_b5 _optimizer="$val2" _batch_size=10 _lr_init=0.0001
+    python isic.py with _model_name="$val2" _optimizer=AdamW _batch_size=32 _lr_init=0.001
 done

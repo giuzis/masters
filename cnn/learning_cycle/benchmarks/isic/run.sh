@@ -1,26 +1,120 @@
 #!/bin/bash
 
 # Declare an array of string with type
-declare -a modelArray=("efficientnet_b1" "efficientnet_b2" "efficientnet_b3" "efficientnet_b4" "efficientnet_b5" "efficientnet_b6" "efficientnet_b7" "pnasnet" "vgg19" "seresnext101_32x8d" "resnest101e")
-declare -a optArray=("Adam" "AdamW" "Adadelta" "NovoGrad")
-declare -a optArray2=("AdamW" "Adadelta" "NovoGrad")
-declare -a batch_size=(8 16 32 64)
+declare -a modelArray=("resnext101_32x8d" "efficientnet_b0" "efficientnet_b1" "efficientnet_b2" "efficientnet_b3" "efficientnet_b4" "efficientnet_b5" "efficientnet_b6" "vgg19" "seresnext101_32x8d" "resnest101e" "pnasnet5large" "senet154")
+declare -a optArray=("SGD" "Adam" "AdamW")
+declare -a batch_size=(8 16 64)
 
-for val2 in ${optArray2[@]}
-do
-    for bs in ${batch_size[@]}
-    do
-        python isic.py with _model_name=efficientnet_b0 _optimizer="$val2" _batch_size="$bs" _lr_init=0.001
-    done
-done
+python isic.py with _model_name=resnext101_32x8d _optimizer=SGD _batch_size=8 _lr_init=0.001
+python isic.py with _model_name=resnext101_32x8d _optimizer=SGD _batch_size=16 _lr_init=0.001
+python isic.py with _model_name=resnext101_32x8d _optimizer=SGD _batch_size=64 _lr_init=0.001
+python isic.py with _model_name=resnext101_32x8d _optimizer=Adam _batch_size=64 _lr_init=0.001
+python isic.py with _model_name=resnext101_32x8d _optimizer=AdamW _batch_size=64 _lr_init=0.001
+python isic.py with _model_name=efficientnet_b0 _optimizer=SGD _batch_size=8 _lr_init=0.001
+python isic.py with _model_name=efficientnet_b0 _optimizer=SGD _batch_size=16 _lr_init=0.001
+python isic.py with _model_name=efficientnet_b0 _optimizer=SGD _batch_size=64 _lr_init=0.001
+python isic.py with _model_name=efficientnet_b1 _optimizer=SGD _batch_size=8 _lr_init=0.001
+python isic.py with _model_name=efficientnet_b1 _optimizer=SGD _batch_size=16 _lr_init=0.001
+python isic.py with _model_name=efficientnet_b1 _optimizer=SGD _batch_size=64 _lr_init=0.001
+python isic.py with _model_name=efficientnet_b1 _optimizer=Adam _batch_size=64 _lr_init=0.001
+python isic.py with _model_name=efficientnet_b2 _optimizer=SGD _batch_size=8 _lr_init=0.001
+python isic.py with _model_name=efficientnet_b2 _optimizer=SGD _batch_size=16 _lr_init=0.001
+python isic.py with _model_name=efficientnet_b2 _optimizer=SGD _batch_size=64 _lr_init=0.001
+python isic.py with _model_name=efficientnet_b2 _optimizer=Adam _batch_size=64 _lr_init=0.001
+python isic.py with _model_name=efficientnet_b2 _optimizer=AdamW _batch_size=64 _lr_init=0.001
+python isic.py with _model_name=efficientnet_b3 _optimizer=SGD _batch_size=8 _lr_init=0.001
+python isic.py with _model_name=efficientnet_b3 _optimizer=SGD _batch_size=16 _lr_init=0.001
+python isic.py with _model_name=efficientnet_b3 _optimizer=SGD _batch_size=64 _lr_init=0.001
+python isic.py with _model_name=efficientnet_b3 _optimizer=Adam _batch_size=64 _lr_init=0.001
+python isic.py with _model_name=efficientnet_b3 _optimizer=AdamW _batch_size=16 _lr_init=0.001
+python isic.py with _model_name=efficientnet_b3 _optimizer=AdamW _batch_size=64 _lr_init=0.001
+python isic.py with _model_name=efficientnet_b4 _optimizer=SGD _batch_size=8 _lr_init=0.001
+python isic.py with _model_name=efficientnet_b4 _optimizer=SGD _batch_size=16 _lr_init=0.001
+python isic.py with _model_name=efficientnet_b4 _optimizer=SGD _batch_size=32 _lr_init=0.001
+python isic.py with _model_name=efficientnet_b4 _optimizer=SGD _batch_size=64 _lr_init=0.001
+python isic.py with _model_name=efficientnet_b4 _optimizer=Adam _batch_size=8 _lr_init=0.001
+python isic.py with _model_name=efficientnet_b4 _optimizer=Adam _batch_size=16 _lr_init=0.001
+python isic.py with _model_name=efficientnet_b4 _optimizer=Adam _batch_size=32 _lr_init=0.001
+python isic.py with _model_name=efficientnet_b4 _optimizer=Adam _batch_size=64 _lr_init=0.001
+python isic.py with _model_name=efficientnet_b4 _optimizer=AdamW _batch_size=8 _lr_init=0.001
+python isic.py with _model_name=efficientnet_b4 _optimizer=AdamW _batch_size=16 _lr_init=0.001
+python isic.py with _model_name=efficientnet_b4 _optimizer=AdamW _batch_size=32 _lr_init=0.001
+python isic.py with _model_name=efficientnet_b4 _optimizer=AdamW _batch_size=64 _lr_init=0.001
+python isic.py with _model_name=efficientnet_b5 _optimizer=SGD _batch_size=8 _lr_init=0.001
+python isic.py with _model_name=efficientnet_b5 _optimizer=SGD _batch_size=16 _lr_init=0.001
+python isic.py with _model_name=efficientnet_b5 _optimizer=SGD _batch_size=32 _lr_init=0.001
+python isic.py with _model_name=efficientnet_b5 _optimizer=SGD _batch_size=64 _lr_init=0.001
+python isic.py with _model_name=efficientnet_b5 _optimizer=Adam _batch_size=8 _lr_init=0.001
+python isic.py with _model_name=efficientnet_b5 _optimizer=Adam _batch_size=16 _lr_init=0.001
+python isic.py with _model_name=efficientnet_b5 _optimizer=Adam _batch_size=32 _lr_init=0.001
+python isic.py with _model_name=efficientnet_b5 _optimizer=Adam _batch_size=64 _lr_init=0.001
+python isic.py with _model_name=efficientnet_b5 _optimizer=AdamW _batch_size=8 _lr_init=0.001
+python isic.py with _model_name=efficientnet_b5 _optimizer=AdamW _batch_size=16 _lr_init=0.001
+python isic.py with _model_name=efficientnet_b5 _optimizer=AdamW _batch_size=32 _lr_init=0.001
+python isic.py with _model_name=efficientnet_b5 _optimizer=AdamW _batch_size=64 _lr_init=0.001
+python isic.py with _model_name=efficientnet_b6 _optimizer=SGD _batch_size=8 _lr_init=0.001
+python isic.py with _model_name=efficientnet_b6 _optimizer=SGD _batch_size=16 _lr_init=0.001
+python isic.py with _model_name=efficientnet_b6 _optimizer=SGD _batch_size=32 _lr_init=0.001
+python isic.py with _model_name=efficientnet_b6 _optimizer=SGD _batch_size=64 _lr_init=0.001
+python isic.py with _model_name=efficientnet_b6 _optimizer=Adam _batch_size=8 _lr_init=0.001
+python isic.py with _model_name=efficientnet_b6 _optimizer=Adam _batch_size=16 _lr_init=0.001
+python isic.py with _model_name=efficientnet_b6 _optimizer=Adam _batch_size=32 _lr_init=0.001
+python isic.py with _model_name=efficientnet_b6 _optimizer=Adam _batch_size=64 _lr_init=0.001
+python isic.py with _model_name=efficientnet_b6 _optimizer=AdamW _batch_size=8 _lr_init=0.001
+python isic.py with _model_name=efficientnet_b6 _optimizer=AdamW _batch_size=16 _lr_init=0.001
+python isic.py with _model_name=efficientnet_b6 _optimizer=AdamW _batch_size=32 _lr_init=0.001
+python isic.py with _model_name=efficientnet_b6 _optimizer=AdamW _batch_size=64 _lr_init=0.001
+python isic.py with _model_name=vgg19 _optimizer=SGD _batch_size=4 _lr_init=0.001
+python isic.py with _model_name=vgg19 _optimizer=SGD _batch_size=8 _lr_init=0.001
+python isic.py with _model_name=vgg19 _optimizer=SGD _batch_size=16 _lr_init=0.001
+python isic.py with _model_name=vgg19 _optimizer=SGD _batch_size=64 _lr_init=0.001
+python isic.py with _model_name=vgg19 _optimizer=Adam _batch_size=4 _lr_init=0.001
+python isic.py with _model_name=vgg19 _optimizer=Adam _batch_size=8 _lr_init=0.001
+python isic.py with _model_name=vgg19 _optimizer=Adam _batch_size=16 _lr_init=0.001
+python isic.py with _model_name=vgg19 _optimizer=Adam _batch_size=64 _lr_init=0.001
+python isic.py with _model_name=vgg19 _optimizer=AdamW _batch_size=8 _lr_init=0.001
+python isic.py with _model_name=vgg19 _optimizer=AdamW _batch_size=16 _lr_init=0.001
+python isic.py with _model_name=vgg19 _optimizer=AdamW _batch_size=64 _lr_init=0.001
+python isic.py with _model_name=seresnext101_32x8d _optimizer=SGD _batch_size=8 _lr_init=0.001
+python isic.py with _model_name=seresnext101_32x8d _optimizer=SGD _batch_size=16 _lr_init=0.001
+python isic.py with _model_name=seresnext101_32x8d _optimizer=SGD _batch_size=32 _lr_init=0.001
+python isic.py with _model_name=seresnext101_32x8d _optimizer=SGD _batch_size=64 _lr_init=0.001
+python isic.py with _model_name=seresnext101_32x8d _optimizer=Adam _batch_size=8 _lr_init=0.001
+python isic.py with _model_name=seresnext101_32x8d _optimizer=Adam _batch_size=16 _lr_init=0.001
+python isic.py with _model_name=seresnext101_32x8d _optimizer=Adam _batch_size=32 _lr_init=0.001
+python isic.py with _model_name=seresnext101_32x8d _optimizer=Adam _batch_size=64 _lr_init=0.001
+python isic.py with _model_name=seresnext101_32x8d _optimizer=AdamW _batch_size=8 _lr_init=0.001
+python isic.py with _model_name=seresnext101_32x8d _optimizer=AdamW _batch_size=16 _lr_init=0.001
+python isic.py with _model_name=seresnext101_32x8d _optimizer=AdamW _batch_size=32 _lr_init=0.001
+python isic.py with _model_name=seresnext101_32x8d _optimizer=AdamW _batch_size=64 _lr_init=0.001
+python isic.py with _model_name=resnest101e _optimizer=SGD _batch_size=8 _lr_init=0.001
+python isic.py with _model_name=resnest101e _optimizer=SGD _batch_size=16 _lr_init=0.001
+python isic.py with _model_name=resnest101e _optimizer=SGD _batch_size=64 _lr_init=0.001
+python isic.py with _model_name=resnest101e _optimizer=Adam _batch_size=8 _lr_init=0.001
+python isic.py with _model_name=resnest101e _optimizer=Adam _batch_size=16 _lr_init=0.001
+python isic.py with _model_name=resnest101e _optimizer=Adam _batch_size=64 _lr_init=0.001
+python isic.py with _model_name=resnest101e _optimizer=AdamW _batch_size=8 _lr_init=0.001
+python isic.py with _model_name=resnest101e _optimizer=AdamW _batch_size=16 _lr_init=0.001
+python isic.py with _model_name=resnest101e _optimizer=AdamW _batch_size=64 _lr_init=0.001
+python isic.py with _model_name=pnasnet5large _optimizer=SGD _batch_size=8 _lr_init=0.001
+python isic.py with _model_name=pnasnet5large _optimizer=SGD _batch_size=16 _lr_init=0.001
+python isic.py with _model_name=pnasnet5large _optimizer=SGD _batch_size=32 _lr_init=0.001
+python isic.py with _model_name=pnasnet5large _optimizer=SGD _batch_size=64 _lr_init=0.001
+python isic.py with _model_name=pnasnet5large _optimizer=Adam _batch_size=8 _lr_init=0.001
+python isic.py with _model_name=pnasnet5large _optimizer=Adam _batch_size=16 _lr_init=0.001
+python isic.py with _model_name=pnasnet5large _optimizer=Adam _batch_size=32 _lr_init=0.001
+python isic.py with _model_name=pnasnet5large _optimizer=Adam _batch_size=64 _lr_init=0.001
+python isic.py with _model_name=pnasnet5large _optimizer=AdamW _batch_size=8 _lr_init=0.001
+python isic.py with _model_name=pnasnet5large _optimizer=AdamW _batch_size=16 _lr_init=0.001
+python isic.py with _model_name=pnasnet5large _optimizer=AdamW _batch_size=32 _lr_init=0.001
+python isic.py with _model_name=pnasnet5large _optimizer=AdamW _batch_size=64 _lr_init=0.001
+python isic.py with _model_name=senet154 _optimizer=SGD _batch_size=8 _lr_init=0.001
+python isic.py with _model_name=senet154 _optimizer=SGD _batch_size=16 _lr_init=0.001
+python isic.py with _model_name=senet154 _optimizer=SGD _batch_size=64 _lr_init=0.001
+python isic.py with _model_name=senet154 _optimizer=Adam _batch_size=8 _lr_init=0.001
+python isic.py with _model_name=senet154 _optimizer=Adam _batch_size=16 _lr_init=0.001
+python isic.py with _model_name=senet154 _optimizer=Adam _batch_size=32 _lr_init=0.001
+python isic.py with _model_name=senet154 _optimizer=Adam _batch_size=64 _lr_init=0.001
+python isic.py with _model_name=senet154 _optimizer=AdamW _batch_size=32 _lr_init=0.001
+python isic.py with _model_name=senet154 _optimizer=AdamW _batch_size=64 _lr_init=0.001
 
-for model in ${modelArray[@]}
-do
-    for val2 in ${optArray[@]}
-    do
-        for bs in ${batch_size[@]}
-        do
-            python isic.py with _model_name="$model" _optimizer="$val2" _batch_size="$bs" _lr_init=0.001
-        done
-    done
-done

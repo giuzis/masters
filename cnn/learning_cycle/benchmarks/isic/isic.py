@@ -25,13 +25,13 @@ def cnfg():
 
     # Dataset variables
     _folder = 1
-    _csv_path_train = "~/Desktop/datasets/ISIC2017/train/ISIC-2017_Training_Part3_GroundTruth.csv"
-    _imgs_folder_train = "~/Desktop/datasets/ISIC2017/train/ISIC-2017_Training_Data/"
+    _csv_path_train = "/home/a52550/Desktop/datasets/ISIC2017/train/ISIC-2017_Training_Part3_GroundTruth.csv"
+    _imgs_folder_train = "/home/a52550/Desktop/datasets/ISIC2017/train/ISIC-2017_Training_Data/"
 
-    _csv_path_validation = "~/Desktop/datasets/ISIC2017/validation/ISIC-2017_Validation_Part3_GroundTruth.csv"
-    _imgs_folder_validation = "~/Desktop/datasets/ISIC2017/validation/ISIC-2017_Validation_Data_cropped/"
-    _csv_path_test = "~/Desktop/datasets/ISIC2017/test/ISIC-2017_Test_v2_Part3_GroundTruth.csv"
-    _imgs_folder_test = "~/Desktop/datasets/ISIC2017/test/ISIC-2017_Test_Data/"
+    _csv_path_validation = "/home/a52550/Desktop/datasets/ISIC2017/validation/ISIC-2017_Validation_Part3_GroundTruth.csv"
+    _imgs_folder_validation = "/home/a52550/Desktop/datasets/ISIC2017/validation/ISIC-2017_Validation_Data_cropped/"
+    _csv_path_test = "/home/a52550/Desktop/datasets/ISIC2017/test/ISIC-2017_Test_v2_Part3_GroundTruth.csv"
+    _imgs_folder_test = "/home/a52550/Desktop/datasets/ISIC2017/test/ISIC-2017_Test_Data/"
 
     _csv_path_all_metrics = "results/all_metrics.csv"
 
@@ -161,7 +161,7 @@ def main (_csv_path_train, _imgs_folder_train, _csv_path_validation, _imgs_folde
     args = SimpleNamespace()
     args.opt = _optimizer
     args.lr = _lr_init
-    args.weight_decay = 0 
+    args.weight_decay = 0 if _optimizer != 'AdamW' else 1e-2
     args.momentum = 0.9
 
 
@@ -177,7 +177,7 @@ def main (_csv_path_train, _imgs_folder_train, _csv_path_validation, _imgs_folde
                                                               optimizer=optimizer, loss_fn=loss_fn, epochs=_epochs, epochs_early_stop=_early_stop, 
                                                               save_folder=_save_folder, initial_model=None, device=None, schedule_lr=scheduler_lr,
                                                               config_bot=None, model_name="CNN", resume_train=False, history_plot=True, 
-                                                              val_metrics=_all_metrics, best_metric=_best_metric),
+                                                              val_metrics=_all_metrics, best_metric=_best_metric)
     # ####################################################################################################################
 
     # Testing the validation partition

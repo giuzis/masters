@@ -7,41 +7,41 @@ from auto_augment import AutoAugment, Cutout
 import albumentations
 import numpy
 
-# class ImgTrainTransform1:
+class ImgTrainTransform2:
 
-#     def __init__(self, size=(224,224), normalization=([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])):
+    def __init__(self, size=(224,224), normalization=([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])):
 
-#         self.normalization = normalization
-#         self.aug = iaa.Sequential([
-#             iaa.Sometimes(0.25, iaa.Affine(scale={"x": (1.0, 2.0), "y": (1.0, 2.0)})),
-#             iaa.Scale(size),
-#             iaa.Fliplr(0.5),
-#             iaa.Flipud(0.2),  # vertically flip 20% of all images
-#             iaa.Sometimes(0.25, iaa.Affine(rotate=(-120, 120), mode='symmetric')),
-#             iaa.Sometimes(0.25, iaa.GaussianBlur(sigma=(0, 1.5))),
+        self.normalization = normalization
+        self.aug = iaa.Sequential([
+            iaa.Sometimes(0.25, iaa.Affine(scale={"x": (1.0, 2.0), "y": (1.0, 2.0)})),
+            iaa.Scale(size),
+            iaa.Fliplr(0.5),
+            iaa.Flipud(0.2),  # vertically flip 20% of all images
+            iaa.Sometimes(0.25, iaa.Affine(rotate=(-120, 120), mode='symmetric')),
+            iaa.Sometimes(0.25, iaa.GaussianBlur(sigma=(0, 1.5))),
 
-#             # noise
-#             iaa.Sometimes(0.1,
-#                           iaa.OneOf([
-#                               iaa.Dropout(p=(0, 0.05)),
-#                               iaa.CoarseDropout(0.02, size_percent=0.25)
-#                           ])),
+            # noise
+            iaa.Sometimes(0.1,
+                          iaa.OneOf([
+                              iaa.Dropout(p=(0, 0.05)),
+                              iaa.CoarseDropout(0.02, size_percent=0.25)
+                          ])),
 
-#             iaa.Sometimes(0.25,
-#                           iaa.OneOf([
-#                               iaa.Add((-15, 15), per_channel=0.5), # brightness
-#                               iaa.AddToHueAndSaturation(value=(-10, 10), per_channel=True)
-#                           ])),
+            iaa.Sometimes(0.25,
+                          iaa.OneOf([
+                              iaa.Add((-15, 15), per_channel=0.5), # brightness
+                              iaa.AddToHueAndSaturation(value=(-10, 10), per_channel=True)
+                          ])),
 
-#         ])
+        ])
 
-#     def __call__(self, img):
-#         img = self.aug.augment_image(np.array(img)).copy()
-#         transforms = torchvision.transforms.Compose([
-#             torchvision.transforms.ToTensor(),
-#             torchvision.transforms.Normalize(self.normalization[0], self.normalization[1]),
-#         ])
-#         return transforms(img)
+    def __call__(self, img):
+        img = self.aug.augment_image(np.array(img)).copy()
+        transforms = torchvision.transforms.Compose([
+            torchvision.transforms.ToTensor(),
+            torchvision.transforms.Normalize(self.normalization[0], self.normalization[1]),
+        ])
+        return transforms(img)
 
 
 class ImgEvalTransform:
@@ -77,8 +77,9 @@ class ImgTrainTransform:
             return transform(image=numpy.array(img))['image']
     
     def getTransform(self, img_size):
-        t = [transforms.RandomCrop(img_size)] if self.crop_modecrop_mode == "random" else []
-        t = [transforms.CenterCrop(img_size)] if self.crop_modecrop_mode == "center" else []
+        #See: https://github.com/4uiiurz1/pytorch-auto-augment
+        t = [transforms.RandomCrop(img_size)] if self.crop_mode == "random" else []
+        t = [transforms.CenterCrop(img_size)] if self.crop_mode == "center" else []
         t.extend([
             transforms.Resize(self.size),
             transforms.RandomHorizontalFlip(),

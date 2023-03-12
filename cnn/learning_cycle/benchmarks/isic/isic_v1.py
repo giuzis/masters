@@ -8,7 +8,7 @@ import os
 import torch.optim as optim
 import torch.nn as nn
 import torch
-from aug_isic import ImgTrainTransform, ImgTrainTransform2, ImgEvalTransform
+from aug_isic import ImgTrainTransform, ImgEvalTransform
 import time
 from sacred import Experiment
 from sacred.observers import FileStorageObserver
@@ -37,7 +37,7 @@ def cnfg():
 
 
     # Training variables
-    _batch_size = 16
+    _batch_size = 32
     _epochs = 50
     _best_metric = "accuracy"
     _pretrained = True
@@ -47,8 +47,8 @@ def cnfg():
     _sched_patience = 10
     _early_stop = 15
     _weights = "frequency"
-    _optimizer = 'AdamW' # 'SGD', 'Adam', 'AdamW', 'Nadam', 'Radam', 'AdamP', 'Lookahead_Adam', 'Lookahead_AdamW', 'Lookahead_Nadam', 'Lookahead_Radam', 'Lookahead_AdamP'
-    _data_augmentation = 2
+    _optimizer = 'Adam' # 'SGD', 'Adam', 'AdamW', 'Nadam', 'Radam', 'AdamP', 'Lookahead_Adam', 'Lookahead_AdamW', 'Lookahead_Nadam', 'Lookahead_Radam', 'Lookahead_AdamP'
+    _data_augmentation = False
     _PP_enhancement = None
     _PP_hair_removal = None
     _PP_color_constancy = None
@@ -57,7 +57,7 @@ def cnfg():
     _PP_crop_mode = None
     _PP_resizing = True
 
-    _model_name = 'efficientnet_b0'
+    _model_name = 'senet154'
     # _save_folder = "results/" + _model_name + "_fold_" + str(_folder) + "_" + str(time.time()).replace('.', '')
     _save_folder = f"results/{_model_name}_" +\
         f"fold-{_folder}_" +\
@@ -132,22 +132,14 @@ def main (_csv_path_train, _imgs_folder_train, _csv_path_validation, _imgs_folde
     train_imgs_path = ["{}{}.jpg".format(_imgs_folder_train, img_id) for img_id in train_imgs_id]
     train_labels = train_csv_folder['category'].values
     train_meta_data = None
-    if _data_augmentation == 1 or _data_augmentation == "1":
-        print("-- Using data augmentation")
-        transform = ImgTrainTransform(size=model.default_cfg['input_size'][1:], 
+    if _data_augmentation == True or _data_augmentation == "True":
+        train_transform = ImgTrainTransform(size=model.default_cfg['input_size'][1:], 
                                          normalization=(model.default_cfg['mean'], model.default_cfg['std']),
                                          type=1, crop_mode = _PP_crop_mode)
-    elif _data_augmentation == 2 or _data_augmentation == "2":
-        print("-- Using data augmentation")
-        transform = ImgTrainTransform2(size=model.default_cfg['input_size'][1:], 
-                                         normalization=(model.default_cfg['mean'], model.default_cfg['std']))
-    else:
-        print("-- Using raw data")
-        transform = ImgEvalTransform(size=model.default_cfg['input_size'][1:], 
-                                         normalization=(model.default_cfg['mean'], model.default_cfg['std']))
 
     train_data_loader = get_data_loader (train_imgs_path, train_labels, train_meta_data, 
-                                         transform=transform,
+                                         transform=ImgEvalTransform(size=model.default_cfg['input_size'][1:], 
+                                         normalization=(model.default_cfg['mean'], model.default_cfg['std'])),
                                          batch_size=_batch_size, shuf=True, pin_memory=True)
     print("-- Training partition loaded with {} images".format(len(train_data_loader)*_batch_size))
 

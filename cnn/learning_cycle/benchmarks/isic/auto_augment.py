@@ -4,7 +4,7 @@ import scipy
 from scipy import ndimage
 from PIL import Image, ImageEnhance, ImageOps
 
-
+#See: https://github.com/4uiiurz1/pytorch-auto-augment
 class AutoAugment(object):
     def __init__(self):
         self.policies = [
@@ -61,12 +61,12 @@ operations = {
 
 def apply_policy(img, policy):
     if random.random() < policy[1]:
-        print("Applying transform:")
-        print(policy[0], policy[2])
+        # print("Applying transform:")
+        # print(policy[0], policy[2])
         img = operations[policy[0]](img, policy[2])
     if random.random() < policy[4]:
-        print("Applying transform:")
-        print(policy[3], policy[5])
+        # print("Applying transform:")
+        # print(policy[3], policy[5])
         img = operations[policy[3]](img, policy[5])
 
     return img

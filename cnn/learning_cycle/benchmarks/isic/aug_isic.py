@@ -44,6 +44,30 @@ class ImgTrainTransform2:
         return transforms(img)
 
 
+class ImgTrainTransform3:
+
+    def __init__(self, size=(224,224), normalization=((0.485, 0.456, 0.406), (0.229, 0.224, 0.225))):
+
+        self.normalization = normalization
+        self.size = size
+
+    def __call__(self, img):
+        transforms = torchvision.transforms.Compose([
+            torchvision.transforms.RandomRotation(degrees=30),      # random rotation up to 30 degrees
+            torchvision.transforms.RandomResizedCrop(size=self.size),     # random zoom and cropping to size 224x224
+            torchvision.transforms.RandomAffine(degrees=0,          # random width and height shift up to 0.1
+                                    translate=(0.1, 0.1),
+                                    scale=(0.9, 1.1)),
+            torchvision.transforms.RandomAffine(degrees=0,          # random shearing up to 10 degrees
+                                    shear=10),
+            torchvision.transforms.RandomHorizontalFlip(p=0.5),     # horizontal flipping with probability 0.5
+            torchvision.transforms.RandomVerticalFlip(p=0.5),       # vertical flipping with probability 0.5
+            # torchvision.transforms.Resize(self.size),
+            torchvision.transforms.ToTensor(),
+            torchvision.transforms.Normalize(self.normalization[0], self.normalization[1]),
+        ])
+        return transforms(img)
+
 class ImgEvalTransform:
 
     def __init__(self, size=(224,224), normalization=((0.485, 0.456, 0.406), (0.229, 0.224, 0.225))):

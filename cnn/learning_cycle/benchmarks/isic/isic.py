@@ -27,11 +27,14 @@ def cnfg():
     _folder = 1
     _csv_path_train = "/home/a52550/Desktop/datasets/ISIC2017/train/ISIC-2017_Training_Part3_GroundTruth.csv"
     _imgs_folder_train = "/home/a52550/Desktop/datasets/ISIC2017/train/ISIC-2017_Training_Data/"
+    _imgs_folder_train_cropped = "/home/a52550/Desktop/datasets/ISIC2017/train/cropped_images/"
 
     _csv_path_validation = "/home/a52550/Desktop/datasets/ISIC2017/validation/ISIC-2017_Validation_Part3_GroundTruth.csv"
-    _imgs_folder_validation = "/home/a52550/Desktop/datasets/ISIC2017/validation/ISIC-2017_Validation_Data_cropped/"
+    _imgs_folder_validation = "/home/a52550/Desktop/datasets/ISIC2017/validation/ISIC-2017_Validation_Data/"
+    _imgs_folder_validation_cropped = "/home/a52550/Desktop/datasets/ISIC2017/validation/cropped_images/"
     _csv_path_test = "/home/a52550/Desktop/datasets/ISIC2017/test/ISIC-2017_Test_v2_Part3_GroundTruth.csv"
     _imgs_folder_test = "/home/a52550/Desktop/datasets/ISIC2017/test/ISIC-2017_Test_Data/"
+    _imgs_folder_test_cropped = "/home/a52550/Desktop/datasets/ISIC2017/test/cropped_images/"
 
     _csv_path_all_metrics = "results/all_metrics.csv"
 
@@ -54,7 +57,7 @@ def cnfg():
     _PP_color_constancy = None
     _PP_denoising = None
     _PP_normalization = True
-    _PP_crop_mode = None
+    _PP_crop_mode = 'cropped_images_folder'
     _PP_resizing = True
 
     _model_name = 'efficientnet_b0'
@@ -85,7 +88,8 @@ def main (_csv_path_train, _imgs_folder_train, _csv_path_validation, _imgs_folde
           _csv_path_test, _imgs_folder_test, _lr_init, _sched_factor, _sched_min_lr, _sched_patience, 
           _batch_size, _epochs, _early_stop, _weights, _model_name, _save_folder, _best_metric, _optimizer, 
           _csv_path_all_metrics, _data_augmentation, _PP_enhancement, _PP_hair_removal, _PP_color_constancy,
-          _PP_denoising, _PP_normalization, _PP_crop_mode, _PP_resizing):
+          _PP_denoising, _PP_normalization, _PP_crop_mode, _PP_resizing, _imgs_folder_train_cropped,
+          _imgs_folder_validation_cropped, _imgs_folder_test_cropped):
 
     _metric_options = {
         'save_all_path': os.path.join(_save_folder, "best_metrics"),
@@ -96,6 +100,11 @@ def main (_csv_path_train, _imgs_folder_train, _csv_path_validation, _imgs_folde
 
     _all_metrics = ["accuracy", "topk_accuracy", "balanced_accuracy",  "conf_matrix", 
                     "plot_conf_matrix", "precision_recall_report", "auc_and_roc_curve", "auc"]
+    
+    if _PP_crop_mode == 'cropped_images_folder':
+        _imgs_folder_train = _imgs_folder_train_cropped
+        _imgs_folder_validation = _imgs_folder_validation_cropped
+        _imgs_folder_test = _imgs_folder_test_cropped
 
     print("-" * 50)
     print("- Loading validation data...")
@@ -133,16 +142,16 @@ def main (_csv_path_train, _imgs_folder_train, _csv_path_validation, _imgs_folde
     train_labels = train_csv_folder['category'].values
     train_meta_data = None
     if _data_augmentation == 1 or _data_augmentation == "1":
-        print("-- Using data augmentation")
+        print("-- Using data augmentation 1")
         transform = ImgTrainTransform(size=model.default_cfg['input_size'][1:], 
                                          normalization=(model.default_cfg['mean'], model.default_cfg['std']),
                                          type=1, crop_mode = _PP_crop_mode)
     elif _data_augmentation == 2 or _data_augmentation == "2":
-        print("-- Using data augmentation")
+        print("-- Using data augmentation 2")
         transform = ImgTrainTransform2(size=model.default_cfg['input_size'][1:], 
                                          normalization=(model.default_cfg['mean'], model.default_cfg['std']))
     elif _data_augmentation == 3 or _data_augmentation == "3":
-        print("-- Using data augmentation")
+        print("-- Using data augmentation 3")
         transform = ImgTrainTransform3(size=model.default_cfg['input_size'][1:], 
                                          normalization=(model.default_cfg['mean'], model.default_cfg['std']))
     else:

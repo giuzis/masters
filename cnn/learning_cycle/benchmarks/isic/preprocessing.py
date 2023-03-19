@@ -1,10 +1,17 @@
-
-from PIL import Image
 import cv2
 import numpy as np
-import os 
 
-imgs_path_train = '/home/a52550/Desktop/datasets/ISIC2017/train/'
+class PreProcessing(object):
+    def __init__(self, pp_enhancement = None, pp_hair_removal = None, pp_color_constancy = None, pp_denoising = None):
+        self.pp_enhancement = pp_enhancement
+        self.pp_hair_removal = pp_hair_removal
+        self.pp_color_constancy = pp_color_constancy
+        self.pp_denoising = pp_denoising
+
+    def __call__(self, img):
+        img = image_preprocessing(np.array(img), pp_enhancement=self.pp_enhancement, pp_hair_removal=self.pp_hair_removal, pp_color_constancy=self.pp_color_constancy, pp_denoising=self.pp_denoising) 
+        return img
+
 
 def dullrazor(img):
     #Gray scale
@@ -77,12 +84,9 @@ def contrast_enhancement(img):
 
     return img_eq
 
-def image_preprocessing(img, pp_enhancement = None, pp_hair_removal = None, pp_color_constancy = None,
-                 pp_denoising = None):
-    if pp_hair_removal == "dull_razor":
-        img = dullrazor(img)
+def image_preprocessing(img, pp_enhancement = None, pp_hair_removal = None, pp_color_constancy = None, pp_denoising = None):
     if pp_enhancement == "CLAHE":
-        clahe = cv2.createCLAHE(clipLimit=3.0, tileGridSize=(8,8))
+        clahe = cv2.createCLAHE(clipLimit=3.0, tileGridSize=(9,9))
         img[:, :, 0] = clahe.apply(img[:, :, 0])
         img[:, :, 1] = clahe.apply(img[:, :, 1])
         img[:, :, 2] = clahe.apply(img[:, :, 2])
@@ -94,33 +98,7 @@ def image_preprocessing(img, pp_enhancement = None, pp_hair_removal = None, pp_c
         img = cv2.GaussianBlur(img,(5,5),0)
     if pp_denoising == "mean_filter":
         img = cv2.blur(img,(5,5))
+    if pp_hair_removal == "dull_razor":
+        img = dullrazor(img)
     return img
-    
 
-all_files = os.listdir(imgs_path_train+'ISIC-2017_Training_Data/')
-all_files_2 = os.listdir(imgs_path_train+'hair_removed_images/')
-
-# remove files present in both folders
-for file in all_files_2:
-    if file in all_files:
-        all_files.remove(file)
-
-all_images = []
-for file in all_files:
-        if file.find('superpixels') == -1 and \
-            file.find('Training_Data_metadata') == -1 and \
-            file.find('_final') == -1 and file.find('cut_coords') == -1 and \
-            file not in all_files_2:
-                new_img = file.split('.')[0]
-                all_images.append(new_img)
-
-print('Total images: ', len(all_images))
-
-print(all_images[0])
-
-# for img_name in all_images:
-#     print('Processing image: ', img_name)
-#     path = imgs_path_train+'ISIC-2017_Training_Data/'+img_name+'.jpg'
-#     image = Image.open(path).convert('RGB')
-#     x = image_preprocessing(np.array(image),pp_enhancement=None,pp_hair_removal='dull_razor',pp_color_constancy=None,pp_denoising=None)
-#     cv2.imwrite(imgs_path_train+'hair_removed_images/'+img_name+'.jpg', cv2.cvtColor(x, cv2.COLOR_RGB2BGR))

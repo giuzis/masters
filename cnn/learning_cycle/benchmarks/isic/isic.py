@@ -8,7 +8,7 @@ import os
 import torch.optim as optim
 import torch.nn as nn
 import torch
-from aug_isic import ImgTrainTransform, ImgTrainTransform2, ImgTrainTransform3, ImgEvalTransform
+from aug_isic import ImgTrainTransform0, ImgTrainTransform1, ImgTrainTransform2, ImgTrainTransform3, ImgEvalTransform, ImgTrainTransformWithPP
 import time
 from sacred import Experiment
 from sacred.observers import FileStorageObserver
@@ -51,13 +51,13 @@ def cnfg():
     _early_stop = 15
     _weights = "frequency"
     _optimizer = 'AdamW' # 'SGD', 'Adam', 'AdamW', 'Nadam', 'Radam', 'AdamP', 'Lookahead_Adam', 'Lookahead_AdamW', 'Lookahead_Nadam', 'Lookahead_Radam', 'Lookahead_AdamP'
-    _data_augmentation = 2
+    _data_augmentation = None
     _PP_enhancement = None
     _PP_hair_removal = None
     _PP_color_constancy = None
     _PP_denoising = None
     _PP_normalization = True
-    _PP_crop_mode = 'cropped_images_folder'
+    _PP_crop_mode = None
     _PP_resizing = True
 
     _model_name = 'efficientnet_b0'
@@ -132,7 +132,7 @@ def main (_csv_path_train, _imgs_folder_train, _csv_path_validation, _imgs_folde
     val_data_loader = get_data_loader (val_imgs_path, val_labels, val_meta_data, 
                                        transform=ImgEvalTransform(size=model.default_cfg['input_size'][1:], 
                                        normalization=(model.default_cfg['mean'], model.default_cfg['std'])),
-                                       batch_size=_batch_size, shuf=True, pin_memory=True)
+                                       batch_size=_batch_size, shuf=True, pin_memory=True, )
     print("-- Validation partition loaded with {} images".format(len(val_data_loader)*_batch_size))
 
     print("- Loading training data...")
@@ -141,11 +141,14 @@ def main (_csv_path_train, _imgs_folder_train, _csv_path_validation, _imgs_folde
     train_imgs_path = ["{}{}.jpg".format(_imgs_folder_train, img_id) for img_id in train_imgs_id]
     train_labels = train_csv_folder['category'].values
     train_meta_data = None
+    if _data_augmentation == 0 or _data_augmentation == "0":
+        print("-- Using data augmentation 0")
+        transform = ImgTrainTransform0(size=model.default_cfg['input_size'][1:], 
+                                         normalization=(model.default_cfg['mean'], model.default_cfg['std']))
     if _data_augmentation == 1 or _data_augmentation == "1":
         print("-- Using data augmentation 1")
-        transform = ImgTrainTransform(size=model.default_cfg['input_size'][1:], 
-                                         normalization=(model.default_cfg['mean'], model.default_cfg['std']),
-                                         type=1, crop_mode = _PP_crop_mode)
+        transform = ImgTrainTransform1(size=model.default_cfg['input_size'][1:], 
+                                         normalization=(model.default_cfg['mean'], model.default_cfg['std']))
     elif _data_augmentation == 2 or _data_augmentation == "2":
         print("-- Using data augmentation 2")
         transform = ImgTrainTransform2(size=model.default_cfg['input_size'][1:], 
@@ -155,9 +158,14 @@ def main (_csv_path_train, _imgs_folder_train, _csv_path_validation, _imgs_folde
         transform = ImgTrainTransform3(size=model.default_cfg['input_size'][1:], 
                                          normalization=(model.default_cfg['mean'], model.default_cfg['std']))
     else:
-        print("-- Using raw data")
-        transform = ImgEvalTransform(size=model.default_cfg['input_size'][1:], 
-                                         normalization=(model.default_cfg['mean'], model.default_cfg['std']))
+        if _PP_color_constancy is None and _PP_denoising is None and _PP_enhancement is None and _PP_hair_removal is None:
+            print("-- Using raw data")
+        else:
+            print('-- Using pre-processing: color_constancy={}, denoising={}, enhancement={}, hair_removal={}'.format(_PP_color_constancy, _PP_denoising, _PP_enhancement, _PP_hair_removal)) 
+        transform = ImgTrainTransformWithPP(size=model.default_cfg['input_size'][1:], 
+                                         normalization=(model.default_cfg['mean'], model.default_cfg['std']),
+                                         pp_color_constancy=_PP_color_constancy, pp_denoising=_PP_denoising, 
+                                         pp_enhancement=_PP_enhancement, pp_hair_removal=_PP_hair_removal)
 
     train_data_loader = get_data_loader (train_imgs_path, train_labels, train_meta_data, 
                                          transform=transform,

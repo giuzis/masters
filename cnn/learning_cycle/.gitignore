@@ -1,4 +1,5 @@
 benchmarks/**/results
+benchmarks/**/best_results
 benchmarks/**/venv
 benchmarks/**/logs
 

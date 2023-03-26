@@ -106,6 +106,10 @@ def main (_csv_path_train, _imgs_folder_train, _csv_path_validation, _imgs_folde
         _imgs_folder_validation = _imgs_folder_validation_cropped
         _imgs_folder_test = _imgs_folder_test_cropped
 
+    ##################################################################################################################
+    
+    # Loading validation data
+
     print("-" * 50)
     print("- Loading validation data...")
     val_csv_folder = pd.read_csv(_csv_path_validation)
@@ -118,29 +122,41 @@ def main (_csv_path_train, _imgs_folder_train, _csv_path_validation, _imgs_folde
     ser_lab_freq = get_labels_frequency(train_csv_folder, "category", "image_id")
     _labels_name = ser_lab_freq.index.values
     _freq = ser_lab_freq.values
-    ####################################################################################################################
 
-    model = set_model(_model_name, len(_labels_name))
-
-    # Loading validation data
     val_imgs_id = val_csv_folder['image_id'].values
     print("-- Using {} images".format(val_imgs_id.size))
     val_imgs_path = ["{}{}.jpg".format(_imgs_folder_validation, img_id) for img_id in val_imgs_id]
     val_labels = val_csv_folder['category'].values
     val_meta_data = None
 
-    val_data_loader = get_data_loader (val_imgs_path, val_labels, val_meta_data, 
-                                       transform=ImgEvalTransform(size=model.default_cfg['input_size'][1:], 
-                                       normalization=(model.default_cfg['mean'], model.default_cfg['std'])),
-                                       batch_size=_batch_size, shuf=True, pin_memory=True, )
-    print("-- Validation partition loaded with {} images".format(len(val_data_loader)*_batch_size))
 
+
+    ####################################################################################################################
+    # Loading training data
+
+    print("-"*50)
     print("- Loading training data...")
     train_imgs_id = train_csv_folder['image_id'].values
     print("-- Using {} images".format(train_imgs_id.size))
     train_imgs_path = ["{}{}.jpg".format(_imgs_folder_train, img_id) for img_id in train_imgs_id]
     train_labels = train_csv_folder['category'].values
     train_meta_data = None
+
+    ####################################################################################################################
+    # Loading model
+
+    print("-"*50)
+    model = set_model(_model_name, len(_labels_name))
+    print("- Loading", _model_name)
+    print("- Using optimizer", _optimizer)
+    print("- Input size", model.default_cfg['input_size'][1:])
+
+    ####################################################################################################################
+    # Loading transforms
+
+    transform_eval = ImgEvalTransform(size=model.default_cfg['input_size'][1:], 
+                                    normalization=(model.default_cfg['mean'], model.default_cfg['std']))
+
     if _data_augmentation == 0 or _data_augmentation == "0":
         print("-- Using data augmentation 0")
         transform = ImgTrainTransform0(size=model.default_cfg['input_size'][1:], 
@@ -166,18 +182,17 @@ def main (_csv_path_train, _imgs_folder_train, _csv_path_validation, _imgs_folde
                                          normalization=(model.default_cfg['mean'], model.default_cfg['std']),
                                          pp_color_constancy=_PP_color_constancy, pp_denoising=_PP_denoising, 
                                          pp_enhancement=_PP_enhancement, pp_hair_removal=_PP_hair_removal)
+        transform_eval = transform
+        
+    val_data_loader = get_data_loader (val_imgs_path, val_labels, val_meta_data, 
+                                    transform=transform_eval,
+                                    batch_size=_batch_size, shuf=True, pin_memory=True, )
+    print("-- Validation partition loaded with {} images".format(len(val_data_loader)*_batch_size))
 
     train_data_loader = get_data_loader (train_imgs_path, train_labels, train_meta_data, 
                                          transform=transform,
                                          batch_size=_batch_size, shuf=True, pin_memory=True)
     print("-- Training partition loaded with {} images".format(len(train_data_loader)*_batch_size))
-
-    print("-"*50)
-    ####################################################################################################################
-
-    print("- Loading", _model_name)
-    print("- Using optimizer", _optimizer)
-    print("- Input size", model.default_cfg['input_size'][1:])
 
     ####################################################################################################################
     if _weights == 'frequency':
@@ -293,8 +308,7 @@ def main (_csv_path_train, _imgs_folder_train, _csv_path_validation, _imgs_folde
             'pred_name_scores': 'predictions.csv',
         }
         test_data_loader = get_data_loader(test_imgs_path, test_labels, 
-                                            transform=ImgEvalTransform(size=model.default_cfg['input_size'][1:], 
-                                            normalization=(model.default_cfg['mean'], model.default_cfg['std'])),
+                                            transform=transform_eval,
                                             batch_size=_batch_size, shuf=False, pin_memory=True)
         print("-" * 50)
 

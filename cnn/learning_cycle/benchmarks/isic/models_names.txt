@@ -1,0 +1,14 @@
+efficientnet_b0
+efficientnet_b1
+efficientnet_b2
+efficientnet_b3
+efficientnet_b4
+tf_efficientnet_b5
+tf_efficientnet_b6
+resnest101e
+vgg19
+densenet121
+seresnext101_32x8d
+resnext101_32x8d
+pnasnet5large
+

@@ -8,7 +8,7 @@ import os
 import torch.optim as optim
 import torch.nn as nn
 import torch
-from aug_isic import ImgTrainTransform0, ImgTrainTransform1, ImgTrainTransform2, ImgTrainTransform3, ImgEvalTransform, ImgTrainTransformWithPP
+from aug_isic import ImgTrainTransform0, ImgTrainTransform1, ImgTrainTransform2, ImgTrainTransform3, ImgTrainTransform4, ImgEvalTransform, ImgTrainTransformWithPP
 import time
 from sacred import Experiment
 from sacred.observers import FileStorageObserver
@@ -172,6 +172,10 @@ def main (_csv_path_train, _imgs_folder_train, _csv_path_validation, _imgs_folde
     elif _data_augmentation == 3 or _data_augmentation == "3":
         print("-- Using data augmentation 3")
         transform = ImgTrainTransform3(size=model.default_cfg['input_size'][1:], 
+                                         normalization=(model.default_cfg['mean'], model.default_cfg['std']))
+    elif _data_augmentation == 4 or _data_augmentation == "4":
+        print("-- Using data augmentation 4")
+        transform = ImgTrainTransform4(size=model.default_cfg['input_size'][1:], 
                                          normalization=(model.default_cfg['mean'], model.default_cfg['std']))
     else:
         if _PP_color_constancy is None and _PP_denoising is None and _PP_enhancement is None and _PP_hair_removal is None:

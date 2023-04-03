@@ -59,8 +59,6 @@ def cnfg():
     _PP_normalization = True
     _PP_crop_mode = None
     _PP_resizing = True
-    _dropout = 0.0
-    _train_just_classifier = False
 
     _model_name = 'efficientnet_b0'
     # _save_folder = "results/" + _model_name + "_fold_" + str(_folder) + "_" + str(time.time()).replace('.', '')
@@ -78,8 +76,6 @@ def cnfg():
         f"PPno-{_PP_normalization}_" +\
         f"PPcr-{_PP_crop_mode}_" +\
         f"PPre-{_PP_resizing}_" +\
-        f"drop-{_dropout}_" +\
-        f"trainjustclassifier-{_train_just_classifier}_" +\
         f"{str(time.time()).replace('.', '')}"
 
     # This is used to configure the sacred storage observer. In brief, it says to sacred to save its stuffs in
@@ -93,7 +89,7 @@ def main (_csv_path_train, _imgs_folder_train, _csv_path_validation, _imgs_folde
           _batch_size, _epochs, _early_stop, _weights, _model_name, _save_folder, _best_metric, _optimizer, 
           _csv_path_all_metrics, _data_augmentation, _PP_enhancement, _PP_hair_removal, _PP_color_constancy,
           _PP_denoising, _PP_normalization, _PP_crop_mode, _PP_resizing, _imgs_folder_train_cropped,
-          _imgs_folder_validation_cropped, _imgs_folder_test_cropped, _dropout, _train_just_classifier):
+          _imgs_folder_validation_cropped, _imgs_folder_test_cropped):
 
     _metric_options = {
         'save_all_path': os.path.join(_save_folder, "best_metrics"),
@@ -150,7 +146,7 @@ def main (_csv_path_train, _imgs_folder_train, _csv_path_validation, _imgs_folde
     # Loading model
 
     print("-"*50)
-    model = set_model(_model_name, len(_labels_name), dropout_prob=_dropout, train_just_classifier=_train_just_classifier)
+    model = set_model(_model_name, len(_labels_name))
     print("- Loading", _model_name)
     print("- Using optimizer", _optimizer)
     print("- Input size", model.default_cfg['input_size'][1:])
@@ -261,8 +257,6 @@ def main (_csv_path_train, _imgs_folder_train, _csv_path_validation, _imgs_folde
         "PP_normalization": _PP_normalization,
         "PP_crop_mode": _PP_crop_mode,
         "PP_resizing": _PP_resizing,
-        "train_just_classifier": _train_just_classifier,
-        "dropout": _dropout,
     }
 
     validation_metrics = test_model (model, val_data_loader, checkpoint_path=_checkpoint_best, loss_fn=loss_fn, save_pred=True,
@@ -311,8 +305,6 @@ def main (_csv_path_train, _imgs_folder_train, _csv_path_validation, _imgs_folde
             "PP_normalization": _PP_normalization,
             "PP_crop_mode": _PP_crop_mode,
             "PP_resizing": _PP_resizing,
-            "train_just_classifier": _train_just_classifier,
-            "dropout": _dropout,
         }
 
         _metric_options = {
@@ -374,9 +366,7 @@ def main (_csv_path_train, _imgs_folder_train, _csv_path_validation, _imgs_folde
             "PP_denoising": _PP_denoising,
             "PP_normalization": _PP_normalization,
             "PP_crop_mode": _PP_crop_mode,
-            "PP_resizing": _PP_resizing,
-            "train_just_classifier": _train_just_classifier,
-            "dropout": _dropout,
+            "PP_resizing": _PP_resizing
         }
         
         del test_metrics['conf_matrix']

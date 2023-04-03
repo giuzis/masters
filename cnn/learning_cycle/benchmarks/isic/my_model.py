@@ -4,36 +4,42 @@ from timm.data import resolve_data_config
 import pytorch_lightning as pl
 import segmentation_models_pytorch as smp
 from torch import nn
+from torchinfo import summary
 
-_NORM_AND_SIZE = [[0.485, 0.456, 0.406], [0.229, 0.224, 0.225], [224, 224]]
+def set_model (model_name, num_class, dropout_prob = 0.0, train_just_classifier = False):
 
-def set_model (model_name, num_class, input_size=224):
+    model = timm.create_model(model_name, pretrained=True)
 
-    model = timm.create_model(model_name, pretrained=True, num_classes=num_class)
+    if train_just_classifier:
+        for param in model.parameters():
+            param.requires_grad = False
 
-    # dropout_prob = 0.5 # probabilidade de dropout
+    if 'efficientnet' in model_name or 'densenet121' in model_name:
+        model.classifier = nn.Sequential(
+            nn.Dropout(dropout_prob),
+            nn.Linear(model.classifier.in_features, num_class)
+        )
 
-    # if model_name.startswith('efficientnet'):
-    #     # encontre a última camada linear do modelo
-    #     num_ftrs = model.classifier.in_features 
+    elif 'resnest101e' in model_name or 'seresnext101_32x8d' in model_name or 'resnext101_32x8d' in model_name:
+        model.fc = nn.Sequential(
+            nn.Dropout(dropout_prob),
+            nn.Linear(model.fc.in_features, num_class)
+        )
 
-    #     # adicione o dropout à camada linear e crie uma nova camada linear com o mesmo número de saídas
-    #     model.classifier = nn.Sequential(
-    #         nn.Dropout(p=dropout_prob),
-    #         nn.Linear(num_ftrs, model.num_classes)
-    #     )
+    elif 'vgg19' in model_name:
+        model.head.fc = nn.Sequential(
+            nn.Dropout(dropout_prob),
+            nn.Linear(model.head.fc.in_features, num_class)
+        )
 
-    # else:
-    #     # encontre a última camada linear do modelo
-    #     num_ftrs = model.fc.in_features 
-
-    #     # adicione o dropout à camada linear e crie uma nova camada linear com o mesmo número de saídas
-    #     model.fc = nn.Sequential(
-    #         nn.Dropout(p=dropout_prob),
-    #         nn.Linear(num_ftrs, model.num_classes)
-    #     )
+    elif 'pnasnet5large' in model_name:
+        model.last_linear = nn.Sequential(
+            nn.Dropout(dropout_prob),
+            nn.Linear(model.last_linear.in_features, num_class)
+        )
         
-
+    summary(model, input_size=(1, 3, 224, 224), verbose=0, col_names=['input_size', 'output_size', 'num_params', 'kernel_size', 'mult_adds', 'trainable'], row_settings=["var_names"])
+    
     return model
 
 

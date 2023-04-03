@@ -6,11 +6,12 @@ import segmentation_models_pytorch as smp
 from torch import nn
 from torchinfo import summary
 
-def set_model (model_name, num_class, dropout_prob = 0.0, train_just_classifier = False):
+def set_model (model_name, num_class, dropout_prob = 0.0, train_classifier_only = False):
 
     model = timm.create_model(model_name, pretrained=True)
 
-    if train_just_classifier:
+    if train_classifier_only:
+        print('Freezing all layers except classifier')
         for param in model.parameters():
             param.requires_grad = False
 

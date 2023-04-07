@@ -21,7 +21,7 @@ def set_model (model_name, num_class, dropout_prob = 0.0, train_classifier_only 
             nn.Linear(model.classifier.in_features, num_class)
         )
 
-    elif 'resnest101e' in model_name or 'seresnext101_32x8d' in model_name or 'resnext101_32x8d' in model_name:
+    elif 'resnest101e' in model_name or 'seresnext101_32x8d' in model_name or 'resnext101_32x8d' in model_name or 'resnest50d' in model_name:
         model.fc = nn.Sequential(
             nn.Dropout(dropout_prob),
             nn.Linear(model.fc.in_features, num_class)

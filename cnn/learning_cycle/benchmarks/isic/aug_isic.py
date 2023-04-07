@@ -41,7 +41,7 @@ class ImgTrainTransform2:
         img = self.aug.augment_image(np.array(img)).copy()
         transforms = torchvision.transforms.Compose([
             torchvision.transforms.ToTensor(),
-            torchvision.transforms.Normalize(self.normalization[0], self.normalization[1]),
+            # torchvision.transforms.Normalize(self.normalization[0], self.normalization[1]),
         ])
         return transforms(img)
 
@@ -130,16 +130,22 @@ class ImgTrainTransform0:
     def __call__(self, img):
         transforms = []
         transforms.append(torchvision.transforms.Resize(self.size))
-        if self.pp_enhancement is not None or self.pp_hair_removal is not None or self.pp_color_constancy is not None or self.pp_denoising is not None:
-            transforms.append(PreProcessing(self.pp_enhancement, self.pp_hair_removal, self.pp_color_constancy, self.pp_denoising))
         transforms.extend([
+            torchvision.transforms.RandomResizedCrop(size=self.size, scale=(0.5,1)),     # random zoom and cropping to size 224x224
             torchvision.transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2),
+            Cutout(),
+            torchvision.transforms.RandomAffine(degrees=0,          # random width and height shift up to 0.1
+                                    translate=(0.1, 0.1),
+                                    scale=(0.9, 1.1)),
             torchvision.transforms.RandomRotation(degrees=30),      # random rotation up to 30 degrees
             torchvision.transforms.RandomHorizontalFlip(p=0.5),     # horizontal flipping with probability 0.5
             torchvision.transforms.RandomVerticalFlip(p=0.5),       # vertical flipping with probability 0.5
             torchvision.transforms.ToTensor(),
             torchvision.transforms.Normalize(self.normalization[0], self.normalization[1]),
         ])
+        if self.pp_enhancement is not None or self.pp_hair_removal is not None or self.pp_color_constancy is not None or self.pp_denoising is not None:
+            transforms.append(PreProcessing(self.pp_enhancement, self.pp_hair_removal, self.pp_color_constancy, self.pp_denoising))
+        
         transforms = torchvision.transforms.Compose(transforms)
         return transforms(img)
     

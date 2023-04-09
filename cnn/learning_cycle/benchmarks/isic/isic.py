@@ -158,8 +158,10 @@ def main (_csv_path_train, _imgs_folder_train, _csv_path_validation, _imgs_folde
     ####################################################################################################################
     # Loading transforms
 
-    transform_eval = ImgEvalTransform(size=model.default_cfg['input_size'][1:], 
-                                    normalization=(model.default_cfg['mean'], model.default_cfg['std']))
+    transform_eval = ImgTrainTransformWithPP(size=model.default_cfg['input_size'][1:], 
+                                         normalization=(model.default_cfg['mean'], model.default_cfg['std']),
+                                         pp_color_constancy=_PP_color_constancy, pp_denoising=_PP_denoising, 
+                                         pp_enhancement=_PP_enhancement, pp_hair_removal=_PP_hair_removal)
 
     if _data_augmentation == 0 or _data_augmentation == "0":
         print("-- Using data augmentation 0")
@@ -170,9 +172,15 @@ def main (_csv_path_train, _imgs_folder_train, _csv_path_validation, _imgs_folde
         transform = ImgTrainTransform1(size=model.default_cfg['input_size'][1:], 
                                          normalization=(model.default_cfg['mean'], model.default_cfg['std']))
     elif _data_augmentation == 2 or _data_augmentation == "2":
-        print("-- Using data augmentation 2")
+        if _PP_color_constancy is None and _PP_denoising is None and _PP_enhancement is None and _PP_hair_removal is None:
+            print("-- Using data augmentation 2")
+        else:
+            print('-- Using data augmentation 2 with pre-processing: color_constancy={}, denoising={}, enhancement={}, hair_removal={}'.format(_PP_color_constancy, _PP_denoising, _PP_enhancement, _PP_hair_removal)) 
+
         transform = ImgTrainTransform2(size=model.default_cfg['input_size'][1:], 
-                                         normalization=(model.default_cfg['mean'], model.default_cfg['std']))
+                                         normalization=(model.default_cfg['mean'], model.default_cfg['std']),
+                                         pp_color_constancy=_PP_color_constancy, pp_denoising=_PP_denoising, 
+                                         pp_enhancement=_PP_enhancement, pp_hair_removal=_PP_hair_removal)
     elif _data_augmentation == 3 or _data_augmentation == "3":
         print("-- Using data augmentation 3")
         transform = ImgTrainTransform3(size=model.default_cfg['input_size'][1:], 
@@ -190,7 +198,6 @@ def main (_csv_path_train, _imgs_folder_train, _csv_path_validation, _imgs_folde
                                          normalization=(model.default_cfg['mean'], model.default_cfg['std']),
                                          pp_color_constancy=_PP_color_constancy, pp_denoising=_PP_denoising, 
                                          pp_enhancement=_PP_enhancement, pp_hair_removal=_PP_hair_removal)
-        transform_eval = transform
         
     val_data_loader = get_data_loader (val_imgs_path, val_labels, val_meta_data, 
                                     transform=transform_eval,

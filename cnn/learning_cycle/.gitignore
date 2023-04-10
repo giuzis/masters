@@ -7,6 +7,7 @@ benchmarks/**/logs
 __pycache__/
 *.py[cod]
 *$py.class
+client_secrets.json
 
 # C extensions
 *.so

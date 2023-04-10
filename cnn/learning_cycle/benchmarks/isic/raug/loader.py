@@ -108,7 +108,7 @@ class MyDataset (data.Dataset):
             self.reset_sample()
 
 
-def get_data_loader (imgs_path, labels, meta_data=None, transform=None, batch_size=30, shuf=True, num_workers=4,
+def get_data_loader (imgs_path, labels, meta_data=None, transform=None, batch_size=30, shuf=True, num_workers=16,
                      pin_memory=True, imgs_path_seg = None, classes=['lesion']):
     """
     This function gets a list og images path, their labels and meta-data (if applicable) and returns a DataLoader

@@ -183,11 +183,11 @@ class Metrics:
                 self.metrics_values["auc_and_roc_curve"] = cmet.auc_and_roc_curve(self.label_scores, self.pred_scores,
                                                                                   self.class_names, class_to_compute, 
                                                                                   save_path)
-            self.metrics_values = {**self.metrics_values, **cmet.precision_recall_fscore_support(self.label_scores,
+        self.metrics_values = {**self.metrics_values, **cmet.precision_recall_fscore_support(self.label_scores,
                                                                                                     self.pred_scores, labels=self.class_names)}
 
-            if save_all_path is not None:
-                self.save_metrics(save_all_path)
+        if save_all_path is not None:
+            self.save_metrics(save_all_path)
 
     def print (self):
         """

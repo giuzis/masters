@@ -21,24 +21,24 @@ class ImgTrainTransform2:
         self.pp_color_constancy = pp_color_constancy
         self.pp_denoising = pp_denoising
         self.aug = iaa.Sequential([
-            iaa.Sometimes(0.25, iaa.Affine(scale={"x": (1.0, 2.0), "y": (1.0, 2.0)})),
-            iaa.Scale(size),
-            iaa.Fliplr(0.5),
+            iaa.Sometimes(0.25, iaa.Affine(scale={"x": (1.0, 2.0), "y": (1.0, 2.0)})), # zoom in
+            iaa.Scale(size), # resize to 224x224
+            iaa.Fliplr(0.5), # horizontally flip 50% of all images
             iaa.Flipud(0.2),  # vertically flip 20% of all images
-            iaa.Sometimes(0.25, iaa.Affine(rotate=(-120, 120), mode='symmetric')),
-            iaa.Sometimes(0.25, iaa.GaussianBlur(sigma=(0, 1.5))),
+            iaa.Sometimes(0.25, iaa.Affine(rotate=(-120, 120), mode='symmetric')), # rotate up to 120 degrees
+            iaa.Sometimes(0.25, iaa.GaussianBlur(sigma=(0, 1.5))), # blur images with a sigma of 0 to 1.5
 
-            # noise
-            iaa.Sometimes(0.1,
+            # prevent overfitting and encourage generalization
+            iaa.Sometimes(0.1, 
                           iaa.OneOf([
-                              iaa.Dropout(p=(0, 0.05)),
-                              iaa.CoarseDropout(0.02, size_percent=0.25)
+                              iaa.Dropout(p=(0, 0.05)), # remove rectangular regions of up to 5% of the image
+                              iaa.CoarseDropout(0.02, size_percent=0.25) # randomly remove up to 5% of the pixels
                           ])),
 
             iaa.Sometimes(0.25,
                           iaa.OneOf([
-                              iaa.Add((-15, 15), per_channel=0.5), # brightness
-                              iaa.AddToHueAndSaturation(value=(-10, 10), per_channel=True)
+                              iaa.Add((-15, 15), per_channel=0.5), # change brightness of images (by -15 to 15 of original value)
+                              iaa.AddToHueAndSaturation(value=(-10, 10), per_channel=True) # change hue and saturation
                           ])),
 
         ])

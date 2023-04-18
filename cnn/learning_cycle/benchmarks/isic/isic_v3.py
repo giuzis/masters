@@ -25,16 +25,9 @@ def cnfg():
 
     # Dataset variables
     _folder = 1
-    _csv_path_train = ["/home/a52550/Desktop/datasets/ISIC2017/train/ISIC-2017_Training_Part3_GroundTruth.csv",
-                       "/home/a52550/Desktop/datasets/complete_mednode_dataset/ground_truth.csv",
-                       "/home/a52550/Desktop/datasets/PH2Dataset/ground_truth.csv"]
-    _imgs_folder_train = ["/home/a52550/Desktop/datasets/ISIC2017/train/ISIC-2017_Training_Data/{}.jpg",
-                          "/home/a52550/Desktop/datasets/complete_mednode_dataset/images/{}.jpg",
-                          "/home/a52550/Desktop/datasets/PH2Dataset/images/{}.bmp"]
-    
-    _imgs_folder_train_cropped = ["/home/a52550/Desktop/datasets/ISIC2017/train/cropped_images/{}.jpg",
-                                  "/home/a52550/Desktop/datasets/complete_mednode_dataset/cropped_images/{}.jpg",
-                                  "/home/a52550/Desktop/datasets/PH2Dataset/cropped_images/{}.bmp"]
+    _csv_path_train = "/home/a52550/Desktop/datasets/ISIC2017/train/ISIC-2017_Training_Part3_GroundTruth.csv"
+    _imgs_folder_train = "/home/a52550/Desktop/datasets/ISIC2017/train/ISIC-2017_Training_Data/"
+    _imgs_folder_train_cropped = "/home/a52550/Desktop/datasets/ISIC2017/train/cropped_images/"
 
     _csv_path_validation = "/home/a52550/Desktop/datasets/ISIC2017/validation/ISIC-2017_Validation_Part3_GroundTruth.csv"
     _imgs_folder_validation = "/home/a52550/Desktop/datasets/ISIC2017/validation/ISIC-2017_Validation_Data/"
@@ -124,37 +117,33 @@ def main (_csv_path_train, _imgs_folder_train, _csv_path_validation, _imgs_folde
     print("-" * 50)
     print("- Loading validation data...")
     val_csv_folder = pd.read_csv(_csv_path_validation)
+    train_csv_folder = pd.read_csv(_csv_path_train)
+    try:
+        all_metrics_df = pd.read_csv(_csv_path_all_metrics)
+    except:
+        all_metrics_df = pd.DataFrame()
+
+    ser_lab_freq = get_labels_frequency(train_csv_folder, "category", "image_id")
+    _labels_name = ser_lab_freq.index.values
+    _freq = ser_lab_freq.values
 
     val_imgs_id = val_csv_folder['image_id'].values
     print("-- Using {} images".format(val_imgs_id.size))
     val_imgs_path = ["{}{}.jpg".format(_imgs_folder_validation, img_id) for img_id in val_imgs_id]
     val_labels = val_csv_folder['category'].values
     val_meta_data = None
-    
+
+
+
     ####################################################################################################################
     # Loading training data
 
     print("-"*50)
     print("- Loading training data...")
-
-    train_csv_path = [pd.read_csv(path) for path in _csv_path_train]
-    for i in range(len(train_csv_path)):
-        train_csv_path[i]['image_id'] = train_csv_path[i]['image_id'].apply(lambda x: _imgs_folder_train[i].format(x))
-    all_train_path = pd.concat(train_csv_path, ignore_index=True)
-
-    try:
-        all_metrics_df = pd.read_csv(_csv_path_all_metrics)
-    except:
-        all_metrics_df = pd.DataFrame()
-
-    ser_lab_freq = get_labels_frequency(all_train_path, "category", "image_id")
-    _labels_name = ser_lab_freq.index.values
-    _freq = ser_lab_freq.values
-
-    train_imgs_path = all_train_path['image_id'].values
-    print("-- Using {} images".format(train_imgs_path.size))
-
-    train_labels = all_train_path['category'].values
+    train_imgs_id = train_csv_folder['image_id'].values
+    print("-- Using {} images".format(train_imgs_id.size))
+    train_imgs_path = ["{}{}.jpg".format(_imgs_folder_train, img_id) for img_id in train_imgs_id]
+    train_labels = train_csv_folder['category'].values
     train_meta_data = None
 
     ####################################################################################################################

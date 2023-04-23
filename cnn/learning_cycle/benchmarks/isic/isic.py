@@ -26,15 +26,18 @@ def cnfg():
     # Dataset variables
     _folder = 1
     _csv_path_train = ["/home/a52550/Desktop/datasets/ISIC2017/train/ISIC-2017_Training_Part3_GroundTruth.csv",
-                       "/home/a52550/Desktop/datasets/complete_mednode_dataset/ground_truth.csv",
-                       "/home/a52550/Desktop/datasets/PH2Dataset/ground_truth.csv"]
+                    #    "/home/a52550/Desktop/datasets/complete_mednode_dataset/ground_truth.csv",
+                    #    "/home/a52550/Desktop/datasets/PH2Dataset/ground_truth.csv"
+                    ]
     _imgs_folder_train = ["/home/a52550/Desktop/datasets/ISIC2017/train/ISIC-2017_Training_Data/{}.jpg",
-                          "/home/a52550/Desktop/datasets/complete_mednode_dataset/images/{}.jpg",
-                          "/home/a52550/Desktop/datasets/PH2Dataset/images/{}.bmp"]
+                        #   "/home/a52550/Desktop/datasets/complete_mednode_dataset/images/{}.jpg",
+                        #   "/home/a52550/Desktop/datasets/PH2Dataset/images/{}.bmp"
+                        ]
     
     _imgs_folder_train_cropped = ["/home/a52550/Desktop/datasets/ISIC2017/train/cropped_images/{}.jpg",
-                                  "/home/a52550/Desktop/datasets/complete_mednode_dataset/cropped_images/{}.jpg",
-                                  "/home/a52550/Desktop/datasets/PH2Dataset/cropped_images/{}.bmp"]
+                                #   "/home/a52550/Desktop/datasets/complete_mednode_dataset/cropped_images/{}.jpg",
+                                #   "/home/a52550/Desktop/datasets/PH2Dataset/cropped_images/{}.bmp"
+                                ]
 
     _csv_path_validation = "/home/a52550/Desktop/datasets/ISIC2017/validation/ISIC-2017_Validation_Part3_GroundTruth.csv"
     _imgs_folder_validation = "/home/a52550/Desktop/datasets/ISIC2017/validation/ISIC-2017_Validation_Data/"
@@ -43,7 +46,7 @@ def cnfg():
     _imgs_folder_test = "/home/a52550/Desktop/datasets/ISIC2017/test/ISIC-2017_Test_Data/"
     _imgs_folder_test_cropped = "/home/a52550/Desktop/datasets/ISIC2017/test/cropped_images/"
 
-    _csv_path_all_metrics = "results/all_metrics.csv"
+    _csv_path_all_metrics = "results/all_metrics_{}.csv"
 
 
     # Training variables
@@ -142,10 +145,7 @@ def main (_csv_path_train, _imgs_folder_train, _csv_path_validation, _imgs_folde
         train_csv_path[i]['image_id'] = train_csv_path[i]['image_id'].apply(lambda x: _imgs_folder_train[i].format(x))
     all_train_path = pd.concat(train_csv_path, ignore_index=True)
 
-    try:
-        all_metrics_df = pd.read_csv(_csv_path_all_metrics)
-    except:
-        all_metrics_df = pd.DataFrame()
+    all_metrics_df = pd.DataFrame()
 
     ser_lab_freq = get_labels_frequency(all_train_path, "category", "image_id")
     _labels_name = ser_lab_freq.index.values
@@ -405,5 +405,19 @@ def main (_csv_path_train, _imgs_folder_train, _csv_path_validation, _imgs_folde
         
         all_metrics_df = all_metrics_df.append(pd.DataFrame(new_dict, columns=new_dict.keys(), index=[0]), ignore_index=True)
 
-        all_metrics_df.to_csv(_csv_path_all_metrics, index=False)
+        configs_string = ("DA{_data_augmentation}" if _data_augmentation != None else 'noDA') +\
+        (f"_{_PP_enhancement}" if _PP_enhancement != None else '') +\
+        (f"_{_PP_hair_removal}" if _PP_hair_removal != None else '') +\
+        (f"_{_PP_color_constancy}" if _PP_color_constancy != None else '' ) +\
+        (f"_{_PP_denoising}" if _PP_denoising != None else '' ) + \
+        (f"_{_PP_crop_mode}" if _PP_crop_mode != None else '' ) +\
+        (f"_dropout{_dropout}".replace('.', '') if _dropout > 0 else '' ) +\
+        ("_trainjustclassifier" if _train_classifier_only else '')
+
+        try:
+            all_metrics_df = pd.read_csv(_csv_path_all_metrics.format(configs_string)).append(all_metrics_df, ignore_index=True)
+        except:
+            pass
+ 
+        all_metrics_df.to_csv(_csv_path_all_metrics.format(configs_string), index=False)
     ####################################################################################################################

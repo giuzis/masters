@@ -357,8 +357,6 @@ def main (_csv_path_train, _imgs_folder_train, _csv_path_validation, _imgs_folde
         new_dict = {**all_metrics_dict, **test_metrics}
         
         all_metrics_df = all_metrics_df.append(pd.DataFrame(new_dict, columns=new_dict.keys(), index=[0]), ignore_index=True)
-
-        all_metrics_df.to_csv(_csv_path_all_metrics, index=False)
         
         _metric_options = {
             'save_all_path': os.path.join(_save_folder, "test_pred_last"),

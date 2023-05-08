@@ -403,7 +403,7 @@ def main (_csv_path_train, _imgs_folder_train, _csv_path_validation, _imgs_folde
         
         all_metrics_df = all_metrics_df.append(pd.DataFrame(new_dict, columns=new_dict.keys(), index=[0]), ignore_index=True)
 
-        configs_string = ("DA{_data_augmentation}" if _data_augmentation != None else 'noDA') +\
+        configs_string = (f"DA{_data_augmentation}" if _data_augmentation != None else 'noDA') +\
         (f"_{_PP_enhancement}" if _PP_enhancement != None else '') +\
         (f"_{_PP_hair_removal}" if _PP_hair_removal != None else '') +\
         (f"_{_PP_color_constancy}" if _PP_color_constancy != None else '' ) +\

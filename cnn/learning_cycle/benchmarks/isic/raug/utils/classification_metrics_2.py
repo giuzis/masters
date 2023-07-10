@@ -112,10 +112,19 @@ def precision_recall_fscore_support (lab_real, lab_pred, labels=None):
     prec_macro, rec_macro, fscore_macro, sup_macro = skmet.precision_recall_fscore_support(lab_real, lab_pred, average='macro', labels=labels)
     prec_micro, rec_micro, fscore_micro, sup_micro = skmet.precision_recall_fscore_support(lab_real, lab_pred, average='micro', labels=labels)
     prec_weighted, rec_weighted, fscore_weighted, sup_weighted = skmet.precision_recall_fscore_support(lab_real, lab_pred, average='weighted', labels=labels)
+    prec, rec, fscore, sup = skmet.precision_recall_fscore_support(lab_real, lab_pred, labels=labels)
+
+    prec_1_2 = (prec[1] + prec[2])/2.0
+    rec_1_2 = (rec[1] + rec[2])/2.0
+    fscore_1_2 = (fscore[1] + fscore[2])/2.0
+    sup_1_2 = (sup[1] + sup[2])/2.0
 
     return {'precision_macro': prec_macro, 'recall_macro': rec_macro, 'fscore_macro': fscore_macro, 'support_macro': sup_macro,
             'precision_micro': prec_micro, 'recall_micro': rec_micro, 'fscore_micro': fscore_micro, 'support_micro': sup_micro,
-            'precision_weighted': prec_weighted, 'recall_weighted': rec_weighted, 'fscore_weighted': fscore_weighted, 'support_weighted': sup_weighted}
+            'precision_weighted': prec_weighted, 'recall_weighted': rec_weighted, 'fscore_weighted': fscore_weighted, 'support_weighted': sup_weighted,
+            'precision_1': prec[1], 'recall_1': rec[1], 'fscore_1': fscore[1], 'support_1': sup[1],
+            'precision_2': prec[2], 'recall_2': rec[2], 'fscore_2': fscore[2], 'support_2': sup[2],
+            'precision_1_2': prec_1_2, 'recall_1_2': rec_1_2, 'fscore_1_2': fscore_1_2, 'support_1_2': sup_1_2,}
 
 def accuracy (lab_real, lab_pred, verbose=False):
     """
@@ -137,7 +146,6 @@ def accuracy (lab_real, lab_pred, verbose=False):
         print('- Accuracy - {:.3f}'.format(acc))
 
     return acc
-
 
 def topk_accuracy (lab_real, lab_pred, topk, verbose=False):
     """

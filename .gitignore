@@ -128,6 +128,10 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
+cnn/learning_cycle/benchmarks/**/results
+cnn/learning_cycle/benchmarks/**/best_results
+cnn/learning_cycle/benchmarks/**/venv
+cnn/learning_cycle/benchmarks/**/logs
 digital-image-processing/
 tensorflow/
 cnn/learning_cycle/benchmarks/isic/raug

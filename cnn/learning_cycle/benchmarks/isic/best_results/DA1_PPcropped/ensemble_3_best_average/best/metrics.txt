@@ -1,0 +1,23 @@
+- METRICS REPORT -
+
+- Accuracy: 0.788
+- Top 2 accuracy: 0.952
+- Balanced accuracy: 0.777
+- Confusion Matrix: 
+[[320  40  33]
+ [ 23  72  22]
+ [  7   2  81]]
+- Precision and Recall report: 
+              precision    recall  f1-score   support
+
+           0       0.91      0.81      0.86       393
+           1       0.63      0.62      0.62       117
+           2       0.60      0.90      0.72        90
+
+    accuracy                           0.79       600
+   macro avg       0.71      0.78      0.73       600
+weighted avg       0.81      0.79      0.79       600
+
+- AUC:
+ {0: 0.9039716782829958, 1: 0.8664861708339969, 2: 0.9605228758169935, 'macro': 0.9115844589615332, 'micro': 0.9228694444444444}
+- AUC: 0.910

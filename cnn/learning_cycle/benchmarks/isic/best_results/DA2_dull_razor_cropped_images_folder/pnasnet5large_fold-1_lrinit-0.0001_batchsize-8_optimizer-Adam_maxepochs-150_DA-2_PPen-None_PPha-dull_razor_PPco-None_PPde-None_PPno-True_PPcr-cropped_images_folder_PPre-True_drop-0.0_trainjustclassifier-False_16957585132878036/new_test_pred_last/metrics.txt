@@ -1,0 +1,19 @@
+- METRICS REPORT -
+
+- Accuracy: 0.762
+- Top 2 accuracy: 0.930
+- Balanced accuracy: 0.749
+- Precision and Recall report: 
+              precision    recall  f1-score   support
+
+           0       0.89      0.79      0.84       393
+           1       0.57      0.62      0.59       117
+           2       0.60      0.84      0.70        90
+
+    accuracy                           0.76       600
+   macro avg       0.69      0.75      0.71       600
+weighted avg       0.79      0.76      0.77       600
+
+- AUC:
+ {0: 0.8670083957173238, 1: 0.8017377147811929, 2: 0.9448583877995643, '1_2': 0.8732980512903786, 'macro': 0.8727656229149973, 'micro': 0.888982638888889}
+- AUC: 0.871

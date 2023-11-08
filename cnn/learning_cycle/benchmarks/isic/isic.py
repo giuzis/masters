@@ -8,7 +8,7 @@ import os
 import torch.optim as optim
 import torch.nn as nn
 import torch
-from aug_isic import ImgTrainTransform0, ImgTrainTransform1, ImgTrainTransform2, ImgTrainTransform3, ImgTrainTransform4, ImgEvalTransform, ImgTrainTransformWithPP
+from aug_isic import ImgTrainTransformWithDA, ImgEvalTransform, ImgTrainTransformWithPP
 import time
 from sacred import Experiment
 from sacred.observers import FileStorageObserver
@@ -25,19 +25,10 @@ def cnfg():
 
     # Dataset variables
     _folder = 1
-    _csv_path_train = ["/home/a52550/Desktop/datasets/ISIC2017/train/ISIC-2017_Training_Part3_GroundTruth.csv",
-                    #    "/home/a52550/Desktop/datasets/complete_mednode_dataset/ground_truth.csv",
-                    #    "/home/a52550/Desktop/datasets/PH2Dataset/ground_truth.csv"
-                    ]
-    _imgs_folder_train = ["/home/a52550/Desktop/datasets/ISIC2017/train/ISIC-2017_Training_Data/{}.jpg",
-                        #   "/home/a52550/Desktop/datasets/complete_mednode_dataset/images/{}.jpg",
-                        #   "/home/a52550/Desktop/datasets/PH2Dataset/images/{}.bmp"
-                        ]
+    _csv_path_train = ["/home/a52550/Desktop/datasets/ISIC2017/train/ISIC-2017_Training_Part3_GroundTruth.csv"]
+    _imgs_folder_train = ["/home/a52550/Desktop/datasets/ISIC2017/train/ISIC-2017_Training_Data/{}.jpg"]
     
-    _imgs_folder_train_cropped = ["/home/a52550/Desktop/datasets/ISIC2017/train/cropped_images/{}.jpg",
-                                #   "/home/a52550/Desktop/datasets/complete_mednode_dataset/cropped_images/{}.jpg",
-                                #   "/home/a52550/Desktop/datasets/PH2Dataset/cropped_images/{}.bmp"
-                                ]
+    _imgs_folder_train_cropped = ["/home/a52550/Desktop/datasets/ISIC2017/train/cropped_images/{}.jpg"]
 
     _csv_path_validation = "/home/a52550/Desktop/datasets/ISIC2017/validation/ISIC-2017_Validation_Part3_GroundTruth.csv"
     _imgs_folder_validation = "/home/a52550/Desktop/datasets/ISIC2017/validation/ISIC-2017_Validation_Data/"
@@ -61,7 +52,7 @@ def cnfg():
     _early_stop = 15
     _weights = "frequency"
     _optimizer = 'AdamW' # 'SGD', 'Adam', 'AdamW', 'Nadam', 'Radam', 'AdamP', 'Lookahead_Adam', 'Lookahead_AdamW', 'Lookahead_Nadam', 'Lookahead_Radam', 'Lookahead_AdamP'
-    _data_augmentation = None
+    _data_augmentation = True
     _PP_enhancement = None
     _PP_hair_removal = None
     _PP_color_constancy = None
@@ -174,32 +165,17 @@ def main (_csv_path_train, _imgs_folder_train, _csv_path_validation, _imgs_folde
                                          pp_color_constancy=_PP_color_constancy, pp_denoising=_PP_denoising, 
                                          pp_enhancement=_PP_enhancement, pp_hair_removal=_PP_hair_removal)
 
-    if _data_augmentation == 0 or _data_augmentation == "0":
-        print("-- Using data augmentation 0")
-        transform = ImgTrainTransform0(size=model.default_cfg['input_size'][1:], 
-                                         normalization=(model.default_cfg['mean'], model.default_cfg['std']))
-    if _data_augmentation == 1 or _data_augmentation == "1":
-        print("-- Using data augmentation 1")
-        transform = ImgTrainTransform1(size=model.default_cfg['input_size'][1:], 
-                                         normalization=(model.default_cfg['mean'], model.default_cfg['std']))
-    elif _data_augmentation == 2 or _data_augmentation == "2":
+    if _data_augmentation == True or _data_augmentation == "True":
         if _PP_color_constancy is None and _PP_denoising is None and _PP_enhancement is None and _PP_hair_removal is None:
             print("-- Using data augmentation 2")
         else:
             print('-- Using data augmentation 2 with pre-processing: color_constancy={}, denoising={}, enhancement={}, hair_removal={}'.format(_PP_color_constancy, _PP_denoising, _PP_enhancement, _PP_hair_removal)) 
 
-        transform = ImgTrainTransform2(size=model.default_cfg['input_size'][1:], 
+        transform = ImgTrainTransformWithDA(size=model.default_cfg['input_size'][1:], 
                                          normalization=(model.default_cfg['mean'], model.default_cfg['std']),
                                          pp_color_constancy=_PP_color_constancy, pp_denoising=_PP_denoising, 
                                          pp_enhancement=_PP_enhancement, pp_hair_removal=_PP_hair_removal)
-    elif _data_augmentation == 3 or _data_augmentation == "3":
-        print("-- Using data augmentation 3")
-        transform = ImgTrainTransform3(size=model.default_cfg['input_size'][1:], 
-                                         normalization=(model.default_cfg['mean'], model.default_cfg['std']))
-    elif _data_augmentation == 4 or _data_augmentation == "4":
-        print("-- Using data augmentation 4")
-        transform = ImgTrainTransform4(size=model.default_cfg['input_size'][1:], 
-                                         normalization=(model.default_cfg['mean'], model.default_cfg['std']))
+
     else:
         if _PP_color_constancy is None and _PP_denoising is None and _PP_enhancement is None and _PP_hair_removal is None:
             print("-- Using raw data")

@@ -135,3 +135,4 @@ cnn/learning_cycle/benchmarks/**/logs
 digital-image-processing/
 tensorflow/
 cnn/learning_cycle/benchmarks/isic/raug
+cnn/learning_cycle/benchmarks/isic/clients_secrets.json
